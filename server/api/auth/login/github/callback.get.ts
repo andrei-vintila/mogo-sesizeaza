@@ -5,7 +5,6 @@ import { eq, and } from 'drizzle-orm'
 import { generateId } from 'lucia'
 import { upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
 import { GitHubUser } from '~/types/github'
-const db = useDB()._db
 export default defineEventHandler(async (event) => {
   if (event.context.user) {
     return sendRedirect(event, '/')
@@ -30,7 +29,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `token ${githubTokens.accessToken}`,
       },
     })
-    const existingAccount = await db.query.oAuthAccount.findFirst({
+    const existingAccount = await useDB().query.oAuthAccount.findFirst({
       where: and(
         eq(oAuthAccount.providerUserId, githubUser.id.toString()),
         eq(oAuthAccount.providerId, 'github')
@@ -44,7 +43,7 @@ export default defineEventHandler(async (event) => {
           primary: boolean;
           visibility: string;
         }
-      ] = await $fetch('https://api.github.com/user/emails', {
+      ] = await $fetch<GitHubUser>('https://api.github.com/user/emails', {
         headers: {
           Authorization: `token ${githubTokens.accessToken}`,
         },
@@ -55,7 +54,7 @@ export default defineEventHandler(async (event) => {
       if (!githubPrimaryEmail) {
         throw new Error('User email not found')
       }
-      const existingUserWithEmail = await db.query.authUser.findFirst({
+      const existingUserWithEmail = await useDB().query.authUser.findFirst({
         columns: { id: true },
         where: eq(authUser.email, githubPrimaryEmail),
       })
@@ -66,7 +65,7 @@ export default defineEventHandler(async (event) => {
           githubUser,
           githubTokens,
         })
-        await db
+        await useDB()
           .update(authUser)
           .set({ githubUsername: githubUser.login })
           .where(eq(authUser.id, existingUserWithEmail.id))

@@ -1,8 +1,8 @@
 import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
-import { useDB } from './db'
-
-const adapter = useDB()._luciaAdapter
+import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
+// @ts-ignore
+const adapter =  new DrizzleSQLiteAdapter(useDB(), tables.session, tables.authUser)
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
       attributes: {

@@ -4,7 +4,7 @@ import { generateId } from 'lucia'
 import { authUser, oAuthAccount } from '@/server/database/schema'
 import { upsertAuthUser, upsertGoogleOAuthAccount } from '~/server/utils/auth'
 import { GoogleUser } from '~/types/gapi'
-const db = useDB()._db
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const forcePrompt = query.prompt === 'consent'
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       'https://www.googleapis.com/oauth2/v3/userinfo',
       { headers: { Authorization: `Bearer ${googleTokens.accessToken}` } }
     )
-    const existingAccount = await db.query.oAuthAccount.findFirst({
+    const existingAccount = await useDB().query.oAuthAccount.findFirst({
       where: and(
         eq(oAuthAccount.providerUserId, googleUser.sub),
         eq(oAuthAccount.providerId, 'google')
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
       if (!googleUser.email_verified || !googleUser.email) {
         throw new Error('Email not verified')
       }
-      const existingUserWithEmail = await db.query.authUser.findFirst({
+      const existingUserWithEmail = await useDB().query.authUser.findFirst({
         columns: { id: true },
         where: eq(authUser.email, googleUser.email),
       })

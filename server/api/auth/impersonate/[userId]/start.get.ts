@@ -1,8 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { authUser } from '@/server/database/schema'
 
-const db = useDB()._db
-
 export default defineEventHandler(async (event) => {
   if (!event.context.user) {
     throw createError({
@@ -32,7 +30,7 @@ export default defineEventHandler(async (event) => {
     })
   }
   try {
-    await db.query.authUser.findFirst({
+    await useDB().query.authUser.findFirst({
       where: eq(authUser.id, userId),
     })
     const session = await lucia.createSession(userId, {
