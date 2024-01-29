@@ -16,6 +16,9 @@ let _luciaAdapter: LuciaDrizzleSQLiteAdapter
 
 export const useDB = () => {
   if (!_db) {
+    console.log('Starting DB')
+    console.log(process.env)
+
     if (process.env.TURSO_DB_URL && process.env.TURSO_DB_TOKEN) {
       // Turso in production
       _db = drizzleLibSQL(createLibSQLClient({
