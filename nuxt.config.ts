@@ -16,6 +16,6 @@ export default defineNuxtConfig({
     dbDefaultIdSize: 25,
   },
   nitro: {
-    debug: true,
+    logLevel: '5'
   }
 })

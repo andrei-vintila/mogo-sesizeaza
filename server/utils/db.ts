@@ -34,7 +34,9 @@ export const useDB = () => {
       const sqlite = new Database(join(process.cwd(), './db.sqlite'))
       _db = drizzle(sqlite, {schema, logger: true})
     } else {
-      throw new Error('No database configured for production '+ process.env.toString(),)
+      let message: string = ''
+      for (const key in process.env) {message += key + ' : ' + process.env[key] + '\n'}
+      throw new Error('No database configured for production \n'+ message)
     }
     // @ts-ignore
     _luciaAdapter = new LuciaDrizzleSQLiteAdapter(_db, session, authUser)
