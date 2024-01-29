@@ -15,4 +15,7 @@ export default defineNuxtConfig({
     googleClientSecret: '',
     dbDefaultIdSize: 25,
   },
+  nitro: {
+    debug: true,
+  }
 })
