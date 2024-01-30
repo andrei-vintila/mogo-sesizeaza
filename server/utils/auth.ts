@@ -7,8 +7,8 @@ import { GitHubUser } from '@/types/github'
 import { GoogleUser } from '@/types/gapi'
 import { UpsertUser, authUser, SelectOAuthAccount, oAuthAccount } from '../database/schema'
 import { googleAuth } from './lucia-auth'
-
-export const upsertGithubOAuthAccount = ({
+type DB = ReturnType<typeof useDB>
+export const upsertGithubOAuthAccount = (db: DB,{
   userId,
   githubUser,
   githubTokens,
@@ -17,7 +17,7 @@ export const upsertGithubOAuthAccount = ({
   githubUser: GitHubUser;
   githubTokens: GitHubTokens;
 }) => {
-  return useDB()
+  return db
     .insert(tables.oAuthAccount)
     .values({
       userId: userId,
@@ -35,7 +35,7 @@ export const upsertGithubOAuthAccount = ({
     })
 }
 
-export const upsertGoogleOAuthAccount = ({
+export const upsertGoogleOAuthAccount = (db: DB,{
   userId,
   googleUser,
   googleTokens,
@@ -44,7 +44,7 @@ export const upsertGoogleOAuthAccount = ({
   googleUser: GoogleUser;
   googleTokens: GoogleTokens;
 }) => {
-  return useDB()
+  return db
     .insert(tables.oAuthAccount)
     .values({
       userId: userId,
@@ -64,14 +64,14 @@ export const upsertGoogleOAuthAccount = ({
     })
 }
 
-export const upsertAuthUser = async ({
+export const upsertAuthUser = async (db: DB,{
   id,
   email,
   githubUsername,
   profilePictureUrl,
   fullName,
 }: UpsertUser) => {
-  const [user] = await useDB()
+  const [user] = await db
     .insert(tables.authUser)
     .values({ id, email, githubUsername, profilePictureUrl, fullName })
     .onConflictDoUpdate({
@@ -92,8 +92,8 @@ export type GoogleToken = {
 };
 
 type GoogleOAuthTokenByUserId = Pick<SelectOAuthAccount, 'userId'>;
-export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
-  const googleTokenData = await useDB().query.oAuthAccount.findFirst({
+export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId) => {
+  const googleTokenData = await db.query.oAuthAccount.findFirst({
     where: and(
       eq(oAuthAccount.userId, userId),
       eq(oAuthAccount.providerId, 'google')
@@ -119,8 +119,8 @@ export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
       const refreshedTokens = await googleAuth.refreshAccessToken(
         googleTokenData.refreshToken
       )
-      // update useDB() with new access token
-      const [refreshedGoogleTokenData] = await useDB()
+      // update db with new access token
+      const [refreshedGoogleTokenData] = await db
         .update(oAuthAccount)
         .set({
           accessToken: refreshedTokens.accessToken,
@@ -143,7 +143,7 @@ export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
         // see https://oslo.js.org/reference/oauth2/OAuth2RequestError/
         const { request, message, description } = e
         if (message === 'invalid_grant') {
-          await useDB()
+          await db
             .update(oAuthAccount)
             .set({
               refreshToken: null,

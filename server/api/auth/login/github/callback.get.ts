@@ -5,7 +5,10 @@ import { eq, and } from 'drizzle-orm'
 import { generateId } from 'lucia'
 import { upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
 import { GitHubUser } from '~/types/github'
+import { githubAuth } from '~/server/utils/lucia-auth'
 export default defineEventHandler(async (event) => {
+  const lucia = event.context.lucia
+  const db = event.context.db
   if (event.context.user) {
     return sendRedirect(event, '/')
   }
@@ -29,7 +32,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `token ${githubTokens.accessToken}`,
       },
     })
-    const existingAccount = await useDB().query.oAuthAccount.findFirst({
+    const existingAccount = await db.query.oAuthAccount.findFirst({
       where: and(
         eq(oAuthAccount.providerUserId, githubUser.id.toString()),
         eq(oAuthAccount.providerId, 'github')
@@ -54,18 +57,18 @@ export default defineEventHandler(async (event) => {
       if (!githubPrimaryEmail) {
         throw new Error('User email not found')
       }
-      const existingUserWithEmail = await useDB().query.authUser.findFirst({
+      const existingUserWithEmail = await db.query.authUser.findFirst({
         columns: { id: true },
         where: eq(authUser.email, githubPrimaryEmail),
       })
 
       if (existingUserWithEmail) {
-        await upsertGithubOAuthAccount({
+        await upsertGithubOAuthAccount(db,{
           userId: existingUserWithEmail.id,
           githubUser,
           githubTokens,
         })
-        await useDB()
+        await db
           .update(authUser)
           .set({ githubUsername: githubUser.login })
           .where(eq(authUser.id, existingUserWithEmail.id))
@@ -74,7 +77,7 @@ export default defineEventHandler(async (event) => {
       if (existingAccount) {
         return existingAccount.userId
       }
-      const user = await upsertAuthUser({
+      const user = await upsertAuthUser(db,{
         id: generateId(25),
         email: githubPrimaryEmail,
         githubUsername: githubUser.login,
@@ -82,7 +85,7 @@ export default defineEventHandler(async (event) => {
         profilePictureUrl: githubUser.avatar_url,
         updatedAt: new Date(),
       })
-      await upsertGithubOAuthAccount({ userId, githubUser, githubTokens })
+      await upsertGithubOAuthAccount(db,{ userId, githubUser, githubTokens })
       return user.id
     }
 

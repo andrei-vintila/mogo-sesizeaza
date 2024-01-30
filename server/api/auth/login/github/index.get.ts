@@ -1,4 +1,5 @@
 import { generateState } from 'arctic'
+import { githubAuth } from '~/server/utils/lucia-auth'
 
 export default defineEventHandler(async (event) => {
   if (event.context.user) {

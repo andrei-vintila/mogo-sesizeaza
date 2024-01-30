@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+  const lucia = event.context.lucia
   if (!event.context.user) {
     throw createError({
       message: 'Unauthorized',

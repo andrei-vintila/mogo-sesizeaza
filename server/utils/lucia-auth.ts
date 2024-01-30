@@ -2,9 +2,12 @@ import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
 // @ts-ignore
-const adapter =  new DrizzleSQLiteAdapter(useDB(), tables.session, tables.authUser)
-export const lucia = new Lucia(adapter, {
-  sessionCookie: {
+
+export function useLucia(D1: D1Database) {
+  // @ts-ignore
+  const adapter = new DrizzleSQLiteAdapter(useDB(D1), tables.session, tables.authUser)
+  return new Lucia(adapter, {
+    sessionCookie: {
       attributes: {
         secure: !process.dev,
         sameSite: 'lax',
@@ -26,8 +29,8 @@ export const lucia = new Lucia(adapter, {
         updatedAt: data.updatedAt,
       }
     },
-})
-
+  })
+}
 const runtimeConfig = useRuntimeConfig()
 
 export const githubAuth = new GitHub(
@@ -42,10 +45,9 @@ export const googleAuth = new Google(
   `${runtimeConfig.public.baseUrl}/api/auth/login/google/callback`
 )
 
-
 declare module 'lucia' {
   interface Register {
-    Lucia: typeof lucia;
+    Lucia: ReturnType<typeof useLucia>
     DatabaseUserAttributes: DatabaseUserAttributes;
     DatabaseSessionAttributes: DatabaseSessionAttributes;
   }

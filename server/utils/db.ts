@@ -10,8 +10,8 @@ export type DbSchema = typeof schema
 export * as tables from '~/server/database/schema'
 
 let _db: DrizzleD1Database<DbSchema> | BetterSQLite3Database<DbSchema> | LibSQLDatabase<DbSchema> | null = null
-
-export const useDB = () => {
+// @ts-ignore
+export const useDB = (D1: D1Database) => {
   if (!_db) {
     console.log('Starting DB')
     console.log(process.env)
@@ -23,20 +23,16 @@ export const useDB = () => {
         authToken: process.env.TURSO_DB_TOKEN
       }), {schema})
 
-    } else if (process.env.DB || process.env.DB_BUILD) {
+    } else if (D1) {
       // d1 in production
-      _db = drizzleD1(process.env.DB || process.env.DB_BUILD, {schema})
+      _db = drizzleD1(D1, {schema})
     } else if (process.dev) {
       // local sqlite in development
       const sqlite = new Database(join(process.cwd(), './db.sqlite'))
       _db = drizzle(sqlite, {schema, logger: true})
     } else {
-      let message: string = ''
-      for (const key in process.env) {message += key + ' : ' + process.env[key] + '\n'}
-      throw new Error('No database configured for production \n'+ message)
+      throw new Error('No database configured for production')
     }
-    // @ts-ignore
-
   }
   return _db
 }

@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm'
 import { session } from '@/server/database/schema'
 
 export default defineEventHandler(async (event) => {
+  const lucia = event.context.lucia
+  const db = event.context.db
   // check if user is authenticated
   if (!event.context.user) {
     throw createError({
@@ -13,6 +15,6 @@ export default defineEventHandler(async (event) => {
   // make sure to invalidate the current session!
   await lucia.invalidateSession(sessionId)
   // delete session cookie
-  await useDB().delete(session).where(eq(session.id, sessionId))
+  await db.delete(session).where(eq(session.id, sessionId))
   return sendRedirect(event, '/login')
 })

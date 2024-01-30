@@ -4,8 +4,11 @@ import { generateId } from 'lucia'
 import { authUser, oAuthAccount } from '@/server/database/schema'
 import { upsertAuthUser, upsertGoogleOAuthAccount } from '~/server/utils/auth'
 import { GoogleUser } from '~/types/gapi'
+import { googleAuth } from '~/server/utils/lucia-auth'
 
 export default defineEventHandler(async (event) => {
+  const lucia = event.context.lucia
+  const db = event.context.db
   const query = getQuery(event)
   const forcePrompt = query.prompt === 'consent'
   if (event.context.user && !forcePrompt) {
@@ -40,7 +43,7 @@ export default defineEventHandler(async (event) => {
       'https://www.googleapis.com/oauth2/v3/userinfo',
       { headers: { Authorization: `Bearer ${googleTokens.accessToken}` } }
     )
-    const existingAccount = await useDB().query.oAuthAccount.findFirst({
+    const existingAccount = await db.query.oAuthAccount.findFirst({
       where: and(
         eq(oAuthAccount.providerUserId, googleUser.sub),
         eq(oAuthAccount.providerId, 'google')
@@ -51,12 +54,12 @@ export default defineEventHandler(async (event) => {
       if (!googleUser.email_verified || !googleUser.email) {
         throw new Error('Email not verified')
       }
-      const existingUserWithEmail = await useDB().query.authUser.findFirst({
+      const existingUserWithEmail = await db.query.authUser.findFirst({
         columns: { id: true },
         where: eq(authUser.email, googleUser.email),
       })
       if (existingAccount) {
-        await upsertAuthUser({
+        await upsertAuthUser(db,{
           id: existingAccount.userId,
           profilePictureUrl: googleUser.picture,
           fullName: googleUser.name,
@@ -65,7 +68,7 @@ export default defineEventHandler(async (event) => {
           updatedAt: new Date(),
         })
         if (forcePrompt) {
-          await upsertGoogleOAuthAccount({
+          await upsertGoogleOAuthAccount(db,{
             userId: existingAccount.userId,
             googleUser,
             googleTokens,
@@ -74,7 +77,7 @@ export default defineEventHandler(async (event) => {
         return existingAccount.userId
       }
       if (existingUserWithEmail) {
-        await upsertGoogleOAuthAccount({
+        await upsertGoogleOAuthAccount(db,{
           userId: existingUserWithEmail.id,
           googleUser,
           googleTokens,
@@ -82,7 +85,7 @@ export default defineEventHandler(async (event) => {
         return existingUserWithEmail.id
       }
 
-      const user = await upsertAuthUser({
+      const user = await upsertAuthUser(db,{
         id: generateId(25),
         profilePictureUrl: googleUser.picture,
         fullName: googleUser.name,
@@ -90,7 +93,7 @@ export default defineEventHandler(async (event) => {
         githubUsername: null,
         updatedAt: new Date(),
       })
-      await upsertGoogleOAuthAccount({
+      await upsertGoogleOAuthAccount(db,{
         userId: user.id,
         googleUser,
         googleTokens,

@@ -1,5 +1,7 @@
 import { verifyRequestOrigin } from 'oslo/request'
 import type { User } from 'lucia'
+import { useLucia } from '../utils/lucia-auth'
+let lucia: ReturnType<typeof useLucia>
 
 export default defineEventHandler(async (event) => {
   if (event.method !== 'GET') {
@@ -13,10 +15,18 @@ export default defineEventHandler(async (event) => {
       return event.node.res.writeHead(403).end()
     }
   }
+  // Initialize auth (Lucia)
+  const { DB } = event.context.cloudflare.env
+
+  if (!lucia) {
+    lucia = useLucia(DB)
+  }
+  event.context.lucia = lucia
 
   const sessionId = getCookie(event, lucia.sessionCookieName) ?? null
   if (!sessionId) {
     event.context.user = null
+    event.context.session = null
     return
   }
 
@@ -35,11 +45,13 @@ export default defineEventHandler(async (event) => {
       lucia.createBlankSessionCookie().serialize()
     )
   }
+  event.context.session = session
   event.context.user = user
 })
 
 declare module 'h3' {
   interface H3EventContext {
     user: User | null;
+    lucia: ReturnType<typeof useLucia>
   }
 }
