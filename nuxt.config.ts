@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     dbDefaultIdSize: 25,
   },
   nitro: {
-    logLevel: '5'
+    logLevel: '5',
+    preset: 'cloudflare-pages'
   }
 })

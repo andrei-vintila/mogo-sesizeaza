@@ -8,9 +8,6 @@ import { GoogleUser } from '@/types/gapi'
 import { UpsertUser, authUser, SelectOAuthAccount, oAuthAccount } from '../database/schema'
 import { googleAuth } from './lucia-auth'
 
-
-const db = useDB()._db
-
 export const upsertGithubOAuthAccount = ({
   userId,
   githubUser,
@@ -20,7 +17,7 @@ export const upsertGithubOAuthAccount = ({
   githubUser: GitHubUser;
   githubTokens: GitHubTokens;
 }) => {
-  return db
+  return useDB()
     .insert(tables.oAuthAccount)
     .values({
       userId: userId,
@@ -47,7 +44,7 @@ export const upsertGoogleOAuthAccount = ({
   googleUser: GoogleUser;
   googleTokens: GoogleTokens;
 }) => {
-  return db
+  return useDB()
     .insert(tables.oAuthAccount)
     .values({
       userId: userId,
@@ -74,7 +71,7 @@ export const upsertAuthUser = async ({
   profilePictureUrl,
   fullName,
 }: UpsertUser) => {
-  const [user] = await db
+  const [user] = await useDB()
     .insert(tables.authUser)
     .values({ id, email, githubUsername, profilePictureUrl, fullName })
     .onConflictDoUpdate({
@@ -96,7 +93,7 @@ export type GoogleToken = {
 
 type GoogleOAuthTokenByUserId = Pick<SelectOAuthAccount, 'userId'>;
 export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
-  const googleTokenData = await db.query.oAuthAccount.findFirst({
+  const googleTokenData = await useDB().query.oAuthAccount.findFirst({
     where: and(
       eq(oAuthAccount.userId, userId),
       eq(oAuthAccount.providerId, 'google')
@@ -122,8 +119,8 @@ export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
       const refreshedTokens = await googleAuth.refreshAccessToken(
         googleTokenData.refreshToken
       )
-      // update db with new access token
-      const [refreshedGoogleTokenData] = await db
+      // update useDB() with new access token
+      const [refreshedGoogleTokenData] = await useDB()
         .update(oAuthAccount)
         .set({
           accessToken: refreshedTokens.accessToken,
@@ -146,7 +143,7 @@ export const getGoogleToken = async ({ userId }: GoogleOAuthTokenByUserId) => {
         // see https://oslo.js.org/reference/oauth2/OAuth2RequestError/
         const { request, message, description } = e
         if (message === 'invalid_grant') {
-          await db
+          await useDB()
             .update(oAuthAccount)
             .set({
               refreshToken: null,

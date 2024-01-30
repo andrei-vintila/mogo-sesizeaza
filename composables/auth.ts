@@ -8,7 +8,7 @@ export const useUser = () => {
     redirect: 'manual',
   })
    }
-  return {user, logout}
+  return { user, logout }
 }
 
 export const useAuthenticatedUser = () => {
