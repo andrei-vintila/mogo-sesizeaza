@@ -11,11 +11,8 @@ export * as tables from '~/server/database/schema'
 
 let _db: DrizzleD1Database<DbSchema> | BetterSQLite3Database<DbSchema> | LibSQLDatabase<DbSchema> | null = null
 // @ts-ignore
-export const useDB = (D1: D1Database) => {
+export const useDB = (D1?: D1Database) => {
   if (!_db) {
-    console.log('Starting DB')
-    console.log(process.env)
-
     if (process.env.TURSO_DB_URL && process.env.TURSO_DB_TOKEN) {
       // Turso in production
       _db = drizzleLibSQL(createLibSQLClient({
