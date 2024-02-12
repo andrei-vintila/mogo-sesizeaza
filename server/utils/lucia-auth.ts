@@ -3,7 +3,7 @@ import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
 
-export function useLucia(D1: D1Database) {
+export function useLucia(D1?: D1Database) {
   // @ts-expect-error type mismatch that is way over my skill
   const adapter = new DrizzleSQLiteAdapter(useDB(D1), tables.session, tables.authUser)
   return new Lucia(adapter, {

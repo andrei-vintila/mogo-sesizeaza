@@ -3,6 +3,7 @@ import type { GitHubTokens, GoogleTokens } from 'arctic'
 
 import { isWithinExpirationDate } from 'oslo'
 import { and, eq } from 'drizzle-orm'
+import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
 import { authUser, oAuthAccount } from '../database/schema'
 import { googleAuth } from './lucia-auth'
 import type { GitHubUser } from '@/types/github'

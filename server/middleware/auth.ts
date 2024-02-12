@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
       return event.node.res.writeHead(403).end()
   }
   // Initialize auth (Lucia)
-  const { DB } = event.context.cloudflare.env
+  const DB: D1Database = event.context.cloudflare?.env.DB
 
   if (!lucia)
-    lucia = useLucia(DB)
+    lucia = useLucia(DB ?? undefined)
 
   event.context.lucia = lucia
 
