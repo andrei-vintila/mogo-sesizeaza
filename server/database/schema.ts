@@ -80,7 +80,7 @@ export const sesizare = sqliteTable('sesizari', {
   description: text('description'),
   latitude: real('latitude').notNull(),
   longitude: real('longitude').notNull(),
-  labels: text('labels', { mode: 'json' }),
+  labels: text('labels', { mode: 'json' }).$type<Array<string>>(),
   status: text('status', { enum: ['new', 'in_progress', 'resolved', 'archived', 'merged'] }).default('new'),
   ...defaultCreatedUpdatedColumns,
 })
