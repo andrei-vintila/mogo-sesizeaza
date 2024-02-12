@@ -5,9 +5,8 @@ let drizzle: ReturnType<typeof useDB>
 export default defineEventHandler(async (event) => {
   const { DB } = event.context.cloudflare.env
 
-  if (!drizzle) {
+  if (!drizzle)
     drizzle = useDB(DB)
-  }
 
   event.context.db = drizzle
 })

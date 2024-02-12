@@ -109,10 +109,10 @@ export const schema = z.any().superRefine((x, ctx) => {
   ]
   const errors = schemas.reduce(
     (errors: z.ZodError[], schema) =>
-      ((result) => ('error' in result ? [...errors, result.error] : errors))(
-        schema.safeParse(x)
+      (result => ('error' in result ? [...errors, result.error] : errors))(
+        schema.safeParse(x),
       ),
-    []
+    [],
   )
   if (schemas.length - errors.length !== 1) {
     ctx.addIssue({
@@ -124,4 +124,4 @@ export const schema = z.any().superRefine((x, ctx) => {
   }
 })
 
-export type GitHubUser = z.infer<typeof schema>;
+export type GitHubUser = z.infer<typeof schema>

@@ -1,3 +1,5 @@
+name = "mogo-sesizeaza"
+main = "./.output/server/index.mjs"
 
 [[d1_databases]]
 binding = "DB"

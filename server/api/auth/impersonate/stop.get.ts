@@ -21,9 +21,9 @@ export default defineEventHandler(async (event) => {
       statusCode: 401,
     })
   }
-  if (!session.impersonatorId) {
+  if (!session.impersonatorId)
     return sendRedirect(event, '/')
-  }
+
   const newSession = await lucia.createSession(session.impersonatorId, {})
   const sessionCookie = lucia.createSessionCookie(newSession.id)
   appendResponseHeader(event, 'Set-Cookie', sessionCookie.serialize())

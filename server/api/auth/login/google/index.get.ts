@@ -1,4 +1,5 @@
-import { generateState, generateCodeVerifier } from 'arctic'
+import process from 'node:process'
+import { generateCodeVerifier, generateState } from 'arctic'
 import { z } from 'zod'
 import { googleAuth } from '~/server/utils/lucia-auth'
 
@@ -9,9 +10,9 @@ const googleUrlQueryParams = z.object({
 export default defineEventHandler(async (event) => {
   const query = await getValidatedQuery(event, googleUrlQueryParams.parse)
 
-  if (event.context.user && !query.forcePrompt) {
+  if (event.context.user && !query.forcePrompt)
     return sendRedirect(event, '/')
-  }
+
   const state = generateState()
   const codeVerifier = generateCodeVerifier()
   const url = await googleAuth.createAuthorizationURL(state, codeVerifier, {

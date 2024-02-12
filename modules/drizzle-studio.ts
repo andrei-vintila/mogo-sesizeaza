@@ -3,12 +3,11 @@ import { addCustomTab, startSubprocess } from '@nuxt/devtools-kit'
 
 export default defineNuxtModule({
   meta: {
-    name: 'drizzle-studio'
+    name: 'drizzle-studio',
   },
-  setup (_options, nuxt) {
-    if (!nuxt.options.dev) {
+  setup(_options, nuxt) {
+    if (!nuxt.options.dev)
       return
-    }
 
     startSubprocess(
       {
@@ -27,8 +26,8 @@ export default defineNuxtModule({
       icon: 'simple-icons:drizzle',
       view: {
         type: 'iframe',
-        src: 'https://local.drizzle.studio'
-      }
+        src: 'https://local.drizzle.studio',
+      },
     })
-  }
+  },
 })

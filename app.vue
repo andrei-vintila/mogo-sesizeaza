@@ -1,8 +1,5 @@
 <script setup>
-
 const colorMode = useColorMode()
-
-
 
 function toggleColorMode() {
   colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'

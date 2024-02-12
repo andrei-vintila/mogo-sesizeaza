@@ -1,10 +1,11 @@
+import process from 'node:process'
 import { generateState } from 'arctic'
 import { githubAuth } from '~/server/utils/lucia-auth'
 
 export default defineEventHandler(async (event) => {
-  if (event.context.user) {
+  if (event.context.user)
     return sendRedirect(event, '/')
-  }
+
   const state = generateState()
   const url = await githubAuth.createAuthorizationURL(state)
   setCookie(event, 'github_oauth_state', state, {

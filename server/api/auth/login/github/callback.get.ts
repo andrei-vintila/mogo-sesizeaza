@@ -1,17 +1,17 @@
 import { OAuth2RequestError } from 'arctic'
-
-import { authUser, oAuthAccount } from '@/server/database/schema'
-import { eq, and } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
+import { authUser, oAuthAccount } from '@/server/database/schema'
 import { upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
-import { GitHubUser } from '~/types/github'
+import type { GitHubUser } from '~/types/github'
 import { githubAuth } from '~/server/utils/lucia-auth'
+
 export default defineEventHandler(async (event) => {
   const lucia = event.context.lucia
   const db = event.context.db
-  if (event.context.user) {
+  if (event.context.user)
     return sendRedirect(event, '/')
-  }
+
   const storedState = getCookie(event, 'github_oauth_state')
   const query = getQuery(event)
   const state = query.state?.toString()
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       event,
       createError({
         statusCode: 400,
-      })
+      }),
     )
   }
   try {
@@ -35,35 +35,35 @@ export default defineEventHandler(async (event) => {
     const existingAccount = await db.query.oAuthAccount.findFirst({
       where: and(
         eq(oAuthAccount.providerUserId, githubUser.id.toString()),
-        eq(oAuthAccount.providerId, 'github')
+        eq(oAuthAccount.providerId, 'github'),
       ),
     })
     const getUser = async () => {
       const githubEmails: [
         {
-          email: string;
-          verified: boolean;
-          primary: boolean;
-          visibility: string;
-        }
+          email: string
+          verified: boolean
+          primary: boolean
+          visibility: string
+        },
       ] = await $fetch<GitHubUser>('https://api.github.com/user/emails', {
         headers: {
           Authorization: `token ${githubTokens.accessToken}`,
         },
       })
       const githubPrimaryEmail = githubEmails.find(
-        (email) => email.primary
+        email => email.primary,
       )?.email
-      if (!githubPrimaryEmail) {
+      if (!githubPrimaryEmail)
         throw new Error('User email not found')
-      }
+
       const existingUserWithEmail = await db.query.authUser.findFirst({
         columns: { id: true },
         where: eq(authUser.email, githubPrimaryEmail),
       })
 
       if (existingUserWithEmail) {
-        await upsertGithubOAuthAccount(db,{
+        await upsertGithubOAuthAccount(db, {
           userId: existingUserWithEmail.id,
           githubUser,
           githubTokens,
@@ -74,10 +74,10 @@ export default defineEventHandler(async (event) => {
           .where(eq(authUser.id, existingUserWithEmail.id))
         return existingUserWithEmail.id
       }
-      if (existingAccount) {
+      if (existingAccount)
         return existingAccount.userId
-      }
-      const user = await upsertAuthUser(db,{
+
+      const user = await upsertAuthUser(db, {
         id: generateId(25),
         email: githubPrimaryEmail,
         githubUsername: githubUser.login,
@@ -85,8 +85,9 @@ export default defineEventHandler(async (event) => {
         profilePictureUrl: githubUser.avatar_url,
         updatedAt: new Date(),
       })
-      await upsertGithubOAuthAccount(db,{ userId, githubUser, githubTokens })
-      return user.id
+      const userId = user.id
+      await upsertGithubOAuthAccount(db, { userId, githubUser, githubTokens })
+      return userId
     }
 
     const userId = await getUser()
@@ -95,21 +96,22 @@ export default defineEventHandler(async (event) => {
     appendResponseHeader(event, 'Set-Cookie', sessionCookie.serialize())
 
     return sendRedirect(event, '/')
-  } catch (e) {
+  }
+  catch (e) {
     if (e instanceof OAuth2RequestError) {
       // invalid code
       return sendError(
         event,
         createError({
           statusCode: 400,
-        })
+        }),
       )
     }
     return sendError(
       event,
       createError({
         statusCode: 500,
-      })
+      }),
     )
   }
 })

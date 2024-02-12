@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "nuxi dev",
@@ -6,29 +7,34 @@
     "preview": "nuxt preview",
     "migrate": "drizzle-kit generate:sqlite",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@iconify-json/simple-icons": "^1.1.89",
-    "@libsql/client": "^0.3.6",
-    "@lucia-auth/adapter-drizzle": "^1.0.0",
-    "@nuxt/ui": "^2.12.3",
-    "arctic": "1.1.0",
-    "better-sqlite3": "^9.3.0",
+    "@iconify-json/simple-icons": "^1.1.90",
+    "@libsql/client": "^0.4.3",
+    "@lucia-auth/adapter-drizzle": "^1.0.1",
+    "@nuxt/ui": "^2.13.0",
+
+    "arctic": "1.1.4",
+    "better-sqlite3": "^9.4.1",
     "bufferutil": "^4.0.8",
-    "drizzle-kit": "^0.20.13",
+    "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.29.3",
     "drizzle-zod": "^0.5.1",
     "h3-zod": "^0.5.3",
     "lucia": "^3.0.1",
-    "nuxt": "^3.9.3",
-    "oslo": "^1.0.3",
+    "nuxt": "^3.10.1",
+    "oslo": "^1.1.0",
     "utf-8-validate": "^6.0.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^2.6.4",
+    "@cloudflare/workers-types": "4.20240208.0",
     "@nuxt/devtools": "^1.0.8",
     "@nuxt/eslint-config": "^0.2.0",
+    "@types/better-sqlite3": "^7.6.9",
     "eslint": "^8.56.0",
     "typescript": "5.3.3"
   }

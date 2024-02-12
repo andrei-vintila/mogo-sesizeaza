@@ -1,26 +1,27 @@
-import { GitHubTokens, GoogleTokens } from 'arctic'
+import { OAuth2RequestError } from 'arctic'
+import type { GitHubTokens, GoogleTokens } from 'arctic'
 
 import { isWithinExpirationDate } from 'oslo'
-import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
-import { GitHubUser } from '@/types/github'
-import { GoogleUser } from '@/types/gapi'
-import { UpsertUser, authUser, SelectOAuthAccount, oAuthAccount } from '../database/schema'
+import { authUser, oAuthAccount } from '../database/schema'
 import { googleAuth } from './lucia-auth'
+import type { GitHubUser } from '@/types/github'
+import type { GoogleUser } from '@/types/gapi'
+
 type DB = ReturnType<typeof useDB>
-export const upsertGithubOAuthAccount = (db: DB,{
+export function upsertGithubOAuthAccount(db: DB, {
   userId,
   githubUser,
   githubTokens,
 }: {
-  userId: string;
-  githubUser: GitHubUser;
-  githubTokens: GitHubTokens;
-}) => {
+  userId: string
+  githubUser: GitHubUser
+  githubTokens: GitHubTokens
+}) {
   return db
     .insert(tables.oAuthAccount)
     .values({
-      userId: userId,
+      userId,
       providerId: 'github',
       providerUserId: githubUser.id.toString(),
       accessToken: githubTokens.accessToken,
@@ -35,19 +36,19 @@ export const upsertGithubOAuthAccount = (db: DB,{
     })
 }
 
-export const upsertGoogleOAuthAccount = (db: DB,{
+export function upsertGoogleOAuthAccount(db: DB, {
   userId,
   googleUser,
   googleTokens,
 }: {
-  userId: string;
-  googleUser: GoogleUser;
-  googleTokens: GoogleTokens;
-}) => {
+  userId: string
+  googleUser: GoogleUser
+  googleTokens: GoogleTokens
+}) {
   return db
     .insert(tables.oAuthAccount)
     .values({
-      userId: userId,
+      userId,
       providerId: 'google',
       providerUserId: googleUser.sub,
       accessToken: googleTokens.accessToken,
@@ -64,13 +65,13 @@ export const upsertGoogleOAuthAccount = (db: DB,{
     })
 }
 
-export const upsertAuthUser = async (db: DB,{
+export async function upsertAuthUser(db: DB, {
   id,
   email,
   githubUsername,
   profilePictureUrl,
   fullName,
-}: UpsertUser) => {
+}: UpsertUser) {
   const [user] = await db
     .insert(tables.authUser)
     .values({ id, email, githubUsername, profilePictureUrl, fullName })
@@ -86,17 +87,17 @@ export const upsertAuthUser = async (db: DB,{
     .returning()
   return user
 }
-export type GoogleToken = {
-  accessToken: string;
-  accessTokenExpiresAt: Date;
-};
+export interface GoogleToken {
+  accessToken: string
+  accessTokenExpiresAt: Date
+}
 
-type GoogleOAuthTokenByUserId = Pick<SelectOAuthAccount, 'userId'>;
-export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId) => {
+type GoogleOAuthTokenByUserId = Pick<SelectOAuthAccount, 'userId'>
+export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserId) {
   const googleTokenData = await db.query.oAuthAccount.findFirst({
     where: and(
       eq(oAuthAccount.userId, userId),
-      eq(oAuthAccount.providerId, 'google')
+      eq(oAuthAccount.providerId, 'google'),
     ),
   })
   if (!googleTokenData) {
@@ -117,7 +118,7 @@ export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId
     }
     try {
       const refreshedTokens = await googleAuth.refreshAccessToken(
-        googleTokenData.refreshToken
+        googleTokenData.refreshToken,
       )
       // update db with new access token
       const [refreshedGoogleTokenData] = await db
@@ -129,8 +130,8 @@ export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId
         .where(
           and(
             eq(oAuthAccount.userId, userId),
-            eq(oAuthAccount.providerId, 'google')
-          )
+            eq(oAuthAccount.providerId, 'google'),
+          ),
         )
         .returning()
 
@@ -138,7 +139,8 @@ export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId
         accessToken: refreshedGoogleTokenData.accessToken,
         accessTokenExpiresAt: refreshedGoogleTokenData.expiresAt,
       }
-    } catch (e) {
+    }
+    catch (e) {
       if (e instanceof OAuth2RequestError) {
         // see https://oslo.js.org/reference/oauth2/OAuth2RequestError/
         const { request, message, description } = e
@@ -151,8 +153,8 @@ export const getGoogleToken = async (db: DB,{ userId }: GoogleOAuthTokenByUserId
             .where(
               and(
                 eq(oAuthAccount.userId, userId),
-                eq(oAuthAccount.providerId, 'google')
-              )
+                eq(oAuthAccount.providerId, 'google'),
+              ),
             )
           throw createError({
             statusCode: 401,

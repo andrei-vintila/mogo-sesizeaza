@@ -40,7 +40,8 @@ export default defineEventHandler(async (event) => {
     })
     const sessionCookie = lucia.createSessionCookie(session.id)
     appendResponseHeader(event, 'Set-Cookie', sessionCookie.serialize())
-  } catch (error) {
+  }
+  catch (error) {
     throw createError({
       message: 'User not found',
       statusCode: 404,

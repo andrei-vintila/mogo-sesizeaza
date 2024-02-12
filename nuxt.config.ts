@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/ui'],
@@ -15,7 +17,6 @@ export default defineNuxtConfig({
     dbDefaultIdSize: 25,
   },
   nitro: {
-    logLevel: '5',
-    preset: 'cloudflare-pages'
-  }
+    preset: 'cloudflare-pages',
+  },
 })

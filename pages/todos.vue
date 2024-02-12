@@ -1,17 +1,14 @@
 <script setup>
 definePageMeta({
-  middleware: 'protected'
+  middleware: 'protected',
 })
 
 const { user, logout } = useUser()
 
-
-
-
 const items = [[{
   label: 'Logout',
   icon: 'i-heroicons-arrow-left-on-rectangle',
-  click: logout
+  click: logout,
 }]]
 </script>
 
