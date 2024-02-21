@@ -11,12 +11,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@iconify-json/simple-icons": "^1.1.90",
-    "@libsql/client": "^0.4.3",
-    "@lucia-auth/adapter-drizzle": "^1.0.1",
+    "@iconify-json/simple-icons": "^1.1.92",
+    "@libsql/client": "^0.5.1",
+    "@lucia-auth/adapter-drizzle": "^1.0.2",
     "@nuxt/ui": "^2.13.0",
-
-    "arctic": "1.1.4",
+    "@vueuse/nuxt": "10.8.0",
+    "arctic": "1.2.0",
     "better-sqlite3": "^9.4.1",
     "bufferutil": "^4.0.8",
     "drizzle-kit": "^0.20.14",
@@ -24,8 +24,8 @@
     "drizzle-zod": "^0.5.1",
     "h3-zod": "^0.5.3",
     "lucia": "^3.0.1",
-    "nuxt": "^3.10.1",
-    "oslo": "^1.1.0",
+    "nuxt": "^3.10.2",
+    "oslo": "^1.1.2",
     "utf-8-validate": "^6.0.3",
     "zod": "^3.22.4"
   },

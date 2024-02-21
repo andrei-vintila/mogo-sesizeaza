@@ -2,7 +2,7 @@ import process from 'node:process'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@vueuse/nuxt'],
   ui: {
     icons: ['heroicons', 'simple-icons'],
   },
