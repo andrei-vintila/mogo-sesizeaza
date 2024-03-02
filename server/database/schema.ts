@@ -1,9 +1,9 @@
 import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
-import type { z } from 'zod'
+import { z } from 'zod'
 import { generateId } from 'lucia'
 
-const defaultIdSize = 25
+export const DEFAULT_ID_SIZE: Readonly<number> = 25
 
 // here we can add common columns to all tables
 const defaultCreatedUpdatedColumns = {
@@ -12,7 +12,7 @@ const defaultCreatedUpdatedColumns = {
 }
 
 export const authUser = sqliteTable('users', {
-  id: text('id').primaryKey().$defaultFn(() => generateId(defaultIdSize)),
+  id: text('id').primaryKey().$defaultFn(() => generateId(DEFAULT_ID_SIZE)),
   email: text('email', { length: 256 }).unique().notNull(),
   githubUsername: text('github_username', { length: 256 }),
   profilePictureUrl: text('profile_picture'),
@@ -73,18 +73,20 @@ export type InsertOAuthAccount = z.infer<typeof InsertOAuthAccountSchema>
 export type UpsertOAuthAccount = z.infer<typeof UpsertOAuthAccountSchema>
 export type SelectOAuthAccount = z.infer<typeof SelectOAuthAccountSchema>
 
+const STATUSES = ['new', 'in_progress', 'resolved', 'archived', 'merged'] as const
 export const sesizare = sqliteTable('sesizari', {
-  id: text('id').primaryKey().$defaultFn(() => generateId(defaultIdSize)),
+  id: text('id').primaryKey().$defaultFn(() => generateId(DEFAULT_ID_SIZE)),
   reporter: text('reporter').notNull().references(() => authUser.id),
   title: text('title').notNull(),
   description: text('description'),
   latitude: real('latitude').notNull(),
   longitude: real('longitude').notNull(),
   labels: text('labels', { mode: 'json' }).$type<Array<string>>(),
-  status: text('status', { enum: ['new', 'in_progress', 'resolved', 'archived', 'merged'] }).default('new'),
+  status: text('status', { enum: STATUSES }).default('new'),
   ...defaultCreatedUpdatedColumns,
 })
 
+export const StatusEnumSchema = z.enum(STATUSES)
 export const InsertSesizareSchema = createInsertSchema(sesizare)
 export const SelectSesizareSchema = createSelectSchema(sesizare)
 export const UpsertSesizareSchema = createInsertSchema(sesizare).required({
