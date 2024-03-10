@@ -4,6 +4,9 @@ export default defineAppConfig({
     container: {
       constrained: 'max-w-2xl',
     },
+    button: {
+      rounded: 'rounded-full',
+    },
     card: {
       header: {
         base: 'flex flex-wrap items-center justify-between',
