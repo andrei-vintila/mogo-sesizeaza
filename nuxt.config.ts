@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@vueuse/nuxt'],
   ui: {
-    icons: ['heroicons', 'simple-icons'],
+    icons: ['heroicons', 'simple-icons', 'mdi'],
   },
   runtimeConfig: {
     public: {
@@ -19,4 +19,5 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'cloudflare-pages',
   },
+  ssr: false,
 })
