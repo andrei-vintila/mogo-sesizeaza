@@ -3,9 +3,15 @@ import type { User } from 'lucia'
 export function useUser() {
   const user = useState<User | null>('user', () => null)
   const logout = async () => {
-    await $fetch('/api/logout', {
+    await $fetch('/api/auth/logout', {
       method: 'POST',
       redirect: 'manual',
+    })
+    user.value = null
+    useToast().add({
+      icon: 'i-heroicons-check-badge',
+      description: 'Logged out successfully',
+      title: 'Success',
     })
   }
   return { user, logout }
