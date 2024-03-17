@@ -1,4 +1,4 @@
-import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, primaryKey, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { generateId } from 'lucia'
@@ -96,3 +96,19 @@ export const UpsertSesizareSchema = createInsertSchema(sesizare).required({
 export type InsertSesizare = z.infer<typeof InsertSesizareSchema>
 export type UpsertSesizare = z.infer<typeof UpsertSesizareSchema>
 export type SelectSesizare = z.infer<typeof SelectSesizareSchema>
+
+export const sesizareVotes = sqliteTable('sesizare_votes', {
+  sesizareId: text('sesizare_id').notNull().references(() => sesizare.id),
+  voterId: text('voter_id').notNull().references(() => authUser.id),
+  ...defaultCreatedUpdatedColumns,
+}, t => ({
+  unq: unique().on(t.sesizareId, t.voterId),
+}))
+
+export const InsertSesizareVoteSchema = createInsertSchema(sesizareVotes)
+export const SelectSesizareVoteSchema = createSelectSchema(sesizareVotes)
+export const UpsertSesizareVoteSchema = createInsertSchema(sesizareVotes).required({
+  updatedAt: true,
+  sesizareId: true,
+  voterId: true,
+})

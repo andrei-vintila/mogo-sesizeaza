@@ -3,12 +3,12 @@ import { InsertSesizareSchema, sesizare } from '~/server/database/schema'
 
 const requestBodySchema = InsertSesizareSchema.omit({ id: true, createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {
-  // if (!event.context.user) {
-  //   throw createError({
-  //     message: 'Unauthorized',
-  //     statusCode: 401,
-  //   })
-  // }
+  if (!event.context.user) {
+    throw createError({
+      message: 'Unauthorized',
+      statusCode: 401,
+    })
+  }
   const db = event.context.db
   const sesizareBody = await readValidatedBody(event, requestBodySchema.parse)
   const sesizareRecord: InsertSesizare = {

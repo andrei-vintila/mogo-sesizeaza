@@ -19,7 +19,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
   const db = event.context.db
   // artifical long time for response
-  setTimeout(() => { }, 1000)
+
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
   return await db.query.sesizare.findMany({
     where: and(
