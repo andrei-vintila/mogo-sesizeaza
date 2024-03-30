@@ -1,7 +1,13 @@
 import { z } from 'zod'
-import { and, between, eq, isNotNull, like, or, sql } from 'drizzle-orm'
-import { StatusEnumSchema, sesizare } from '~/server/database/schema'
+import { and, asc, between, count, desc, eq, isNotNull, like, or } from 'drizzle-orm'
+import { SelectSesizareSchema, StatusEnumSchema, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
 
+const SelectSesizareCardSchema = SelectSesizareSchema.extend({
+  reporterName: z.string(),
+  votes: z.number(),
+  voted: z.number(),
+})
+type SelectSesizareCard = z.infer<typeof SelectSesizareCardSchema>
 const querySchema = z.object({
   search: z.string().optional(),
   limit: z.number().optional().default(25),
@@ -21,8 +27,19 @@ export default defineEventHandler(async (event) => {
   // artifical long time for response
 
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
-  return await db.query.sesizare.findMany({
-    where: and(
+
+  const result = await db.select(
+    {
+      ...sesizare,
+      reporterName: authUser.fullName,
+      votes: count(sesizareVotes.voterId),
+      voted: count(sesizareVotes.voterId, eq(sesizareVotes.voterId, event.context.user?.id || '')),
+    },
+  )
+    .from(sesizare)
+    .leftJoin(sesizareVotes, eq(sesizare.id, sesizareVotes.sesizareId))
+    .leftJoin(authUser, eq(sesizare.reporter, authUser.id))
+    .where(and(
       or(
         query.status ? eq(sesizare.status, query.status) : isNotNull(sesizare.status),
         like(sesizare.title, `%${query.search}%`),
@@ -30,10 +47,16 @@ export default defineEventHandler(async (event) => {
       ),
       between(sesizare.latitude, query.sw_lat, query.ne_lat),
       between(sesizare.longitude, query.ne_lng, query.sw_lng),
-    ),
+    ))
+    .groupBy(sesizare.id)
+    .orderBy(query.sort === 'desc' ? desc(sesizare[query.sortby]) : asc(sesizare[query.sortby]))
+    .limit(query.limit)
+    .offset(query.offset)
 
-    limit: query.limit,
-    offset: query.offset,
+  return result as unknown as SelectSesizareCard[]
 
-  })
+  // result.map((r) => {
+  //   r.reporterName = getInitials(r.reporterName)
+  //   return r
+  // })
 })

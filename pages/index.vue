@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { format as formatDate } from '@formkit/tempo'
+import { CustomMarker, GoogleMap, MarkerCluster } from 'vue3-google-map'
+import { intlFormat, intlFormatDistance } from 'date-fns'
 
+const sesizariStore = useSesizariStore()
+const config = useRuntimeConfig()
 const { user } = useUser()
-const languages = usePreferredLanguages()
-const { data: sesizari } = await useFetch('/api/sesizari', {
-  key: 'sesizari',
+const colorMode = useColorMode()
+const mapIdBasedColorMode = computed(() =>
+  colorMode.value === 'dark' ? '593a0446512e5198' : 'bca681cd186f5d7d',
+)
+await sesizariStore.fetchAll()
+const { coords, error, resume, pause } = useGeolocation({
+  immediate: false,
+  enableHighAccuracy: true,
 })
-
-const { list, containerProps, wrapperProps } = useVirtualList(sesizari, {
+const defaultCoords = { lat: 44.52253832168663, lng: 26.006091098242493 }
+const center = ref(defaultCoords || coords.value)
+const { list, containerProps, wrapperProps } = useVirtualList(sesizariStore.sesizari ?? [], {
   itemHeight: 181,
 })
 const sesizariViewState = useState('sesizariView', () => 'list')
@@ -19,57 +28,46 @@ function toggleMap() {
 </script>
 
 <template>
-  <div class="grid relative height-minus-header">
-    <div class="absolute bottom-2 justify-center flex w-full z-10">
-      <div class=" backdrop-blur-sm p-2 min-w-[50%] flex space-x-2 justify-center rounded-full dark:border-white/30 border-black/30 border-[0.5px]">
-        <UButton variant="ghost" color="gray" size="lg" :icon="toggleIcon" :label="toggleLabel" :ui="{ rounded: 'rounded-full' }" @click="toggleMap" />
-        <UButton
-          to="/sesizare/" color="black" size="lg" label="Adauga sesizare" :ui="{ rounded: 'rounded-full' }"
-        />
-        <UButton v-if="user" to="/me/sesizari" variant="ghost" size="lg" label="Sesizarile mele" :ui="{ rounded: 'rounded-full' }" />
+  <div class="">
+    <div class="grid relative height-minus-header">
+      <div class="absolute bottom-2 justify-center flex w-full z-10">
+        <div
+          class=" backdrop-blur-sm p-2 min-w-[50%] flex space-x-2 justify-center rounded-full dark:border-white/30 border-black/30 border-[0.5px]"
+        >
+          <UButton
+            variant="ghost" color="gray" size="lg" :icon="toggleIcon" :label="toggleLabel"
+            :ui="{ rounded: 'rounded-full' }" @click="toggleMap"
+          />
+          <UButton to="/sesizare/" color="black" size="lg" label="Adauga sesizare" :ui="{ rounded: 'rounded-full' }" />
+          <UButton
+            v-if="user" to="/me/sesizari" variant="ghost" size="lg" label="Sesizarile mele"
+            :ui="{ rounded: 'rounded-full' }"
+          />
+        </div>
       </div>
-    </div>
-    <Suspense>
       <div v-show="sesizariViewState === 'list'" v-bind="containerProps" class="height-minus-header py-1 flex-grow">
         <div v-bind="wrapperProps" class="">
           <div v-for="sesizare in list" :key="sesizare.index" class="px-2 py-1">
-            <UCard :title="sesizare.data.title" class="hover:bg-opacity-90">
-              <template #header>
-                <div class="flex justify-between">
-                  <div class="flex space-x-2">
-                    <UBadge color="primary" variant="outline" size="sm">
-                      {{ sesizare.data.status?.toUpperCase() }}
-                    </UBadge>
-                    <h2 class="md:text-lg text-md font-semibold leading-6">
-                      <ULink :to="`/sesizare/${sesizare.data.id}`" class="truncate overflow-ellipsis">
-                        {{ sesizare.data.title }}
-                      </ULink>
-                    </h2>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs">{{ formatDate(sesizare.data.createdAt, 'long', languages[0]) }}</span>
-                  </div>
-                </div>
-              </template>
-              <div class="flex flex-col">
-                <span class="truncate">{{ sesizare.data.description }}</span>
-                <span class="text-xs">{{ sesizare.data.latitude }}</span>
-                <span class="text-xs">{{ sesizare.data.longitude }}</span>
-              </div>
-            </UCard>
+            <SesizareCard :sesizare="sesizare.data" />
           </div>
         </div>
       </div>
-      <template #fallback>
-        <div v-for="index in 10" :key="index" class="flex items-center justify-center w-[169]">
-          <USkeleton class="h-12 w-12" :ui="{ rounded: 'rounded-full' }" />
-          <div class="space-y-2">
-            <USkeleton class="h-4 w-[250px]" />
-            <USkeleton class="h-4 w-[200px]" />
-          </div>
-        </div>
-      </template>
-    </Suspense>
+    </div>
+    <div v-show="sesizariViewState === 'map'" class=" absolute top-[59px] inset-2 rounded-xl">
+      <GoogleMap
+        :center="center" :zoom="14" :map-id="mapIdBasedColorMode" class="h-full"
+        :api-key="config.public.googleMapsApiKey"
+      >
+        <MarkerCluster>
+          <CustomMarker
+            v-for="sesizare in sesizari" :key="sesizare.id"
+            :options="{ position: { lat: sesizare.latitude, lng: sesizare.longitude }, anchorPoint: 'BOTTOM_CENTER' }"
+          >
+            <Marker :id="sesizare.id" :title="sesizare.title" :votes="sesizare.votes" />
+          </CustomMarker>
+        </MarkerCluster>
+      </GoogleMap>
+    </div>
   </div>
 </template>
 

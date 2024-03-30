@@ -1,5 +1,6 @@
 import { integer, primaryKey, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
+import { relations } from 'drizzle-orm'
 import { z } from 'zod'
 import { generateId } from 'lucia'
 
@@ -7,8 +8,8 @@ export const DEFAULT_ID_SIZE: Readonly<number> = 25
 
 // here we can add common columns to all tables
 const defaultCreatedUpdatedColumns = {
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull().$onUpdate(() => new Date()),
 }
 
 export const authUser = sqliteTable('users', {
@@ -25,7 +26,6 @@ export const InsertUserSchema = createInsertSchema(authUser)
 export const SelectUserSchema = createSelectSchema(authUser)
 // upsert needs an id and updatedAt
 export const UpsertUserSchema = createInsertSchema(authUser).required({
-  updatedAt: true,
   id: true,
 })
 export type InsertUser = z.infer<typeof InsertUserSchema>
@@ -82,15 +82,15 @@ export const sesizare = sqliteTable('sesizari', {
   latitude: real('latitude').notNull(),
   longitude: real('longitude').notNull(),
   labels: text('labels', { mode: 'json' }).$type<Array<string>>(),
-  status: text('status', { enum: STATUSES }).default('new'),
+  status: text('status', { enum: STATUSES }).notNull().default('new'),
+  // sesizareDate: integer('sesizare_date', { mode: 'timestamp' }).$defaultFn(() => new Date()), // this is for manually saying for how long this has been a problem
   ...defaultCreatedUpdatedColumns,
 })
 
 export const StatusEnumSchema = z.enum(STATUSES)
-export const InsertSesizareSchema = createInsertSchema(sesizare)
-export const SelectSesizareSchema = createSelectSchema(sesizare)
-export const UpsertSesizareSchema = createInsertSchema(sesizare).required({
-  updatedAt: true,
+export const InsertSesizareSchema = createInsertSchema(sesizare).extend({ labels: z.array(z.string()) })
+export const SelectSesizareSchema = createSelectSchema(sesizare).extend({ labels: z.array(z.string()) })
+export const UpsertSesizareSchema = InsertSesizareSchema.required({
   id: true,
 })
 export type InsertSesizare = z.infer<typeof InsertSesizareSchema>
@@ -108,7 +108,18 @@ export const sesizareVotes = sqliteTable('sesizare_votes', {
 export const InsertSesizareVoteSchema = createInsertSchema(sesizareVotes)
 export const SelectSesizareVoteSchema = createSelectSchema(sesizareVotes)
 export const UpsertSesizareVoteSchema = createInsertSchema(sesizareVotes).required({
-  updatedAt: true,
   sesizareId: true,
   voterId: true,
+})
+
+export const labels = sqliteTable('labels', {
+  id: text('id').primaryKey().$defaultFn(() => generateId(DEFAULT_ID_SIZE)),
+  name: text('name').notNull().unique(),
+  ...defaultCreatedUpdatedColumns,
+})
+
+export const InsertLabelSchema = createInsertSchema(labels)
+export const SelectLabelSchema = createSelectSchema(labels)
+export const UpsertLabelSchema = createInsertSchema(labels).required({
+  id: true,
 })

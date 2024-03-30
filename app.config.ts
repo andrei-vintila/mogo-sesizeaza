@@ -8,9 +8,7 @@ export default defineAppConfig({
       rounded: 'rounded-full',
     },
     card: {
-      header: {
-        base: 'flex flex-wrap items-center justify-between',
-      },
+
       body: {
         base: 'space-y-4',
       },

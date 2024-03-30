@@ -22,6 +22,27 @@
       "when": 1710598728339,
       "tag": "0002_sparkling_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1711382662683,
+      "tag": "0003_tiny_shard",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1711732218029,
+      "tag": "0004_young_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1711817645804,
+      "tag": "0005_useful_nico_minoru",
+      "breakpoints": true
     }
   ]
 }

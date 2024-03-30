@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const sesizareBody = await readValidatedBody(event, requestBodySchema.parse)
   const sesizareRecord: InsertSesizare = {
     ...sesizareBody,
-    reporter: event.context.user?.id ?? 'jt3y4405ny99q2aksmulhtr8b',
+    reporter: event.context.user?.id ?? 'o9m0ob314ksjtbgblsnqxgddr',
   }
   return await db.insert(sesizare).values(sesizareRecord).returning()
 })
