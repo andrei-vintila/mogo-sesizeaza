@@ -2,10 +2,10 @@ import process from 'node:process'
 import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
+import { useDrizzle } from './db'
 
-export function useLucia(D1?: D1Database) {
-  // @ts-expect-error type mismatch that is way over my skill
-  const adapter = new DrizzleSQLiteAdapter(useDB(D1), tables.session, tables.authUser)
+export function useLucia() {
+  const adapter = new DrizzleSQLiteAdapter(useDrizzle(), tables.session, tables.authUser)
   return new Lucia(adapter, {
     sessionCookie: {
       attributes: {

@@ -1,6 +1,7 @@
 import { verifyRequestOrigin } from 'oslo/request'
 import type { User } from 'lucia'
 import { useLucia } from '../utils/lucia-auth'
+import { useDrizzle } from '../utils/db'
 
 let lucia: ReturnType<typeof useLucia>
 
@@ -16,10 +17,9 @@ export default defineEventHandler(async (event) => {
       return event.node.res.writeHead(403).end()
   }
   // Initialize auth (Lucia)
-  const DB: D1Database = event.context.cloudflare?.env.DB
 
   if (!lucia)
-    lucia = useLucia(DB ?? undefined)
+    lucia = useLucia()
 
   event.context.lucia = lucia
 

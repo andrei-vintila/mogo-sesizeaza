@@ -1,7 +1,10 @@
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { InsertLabelSchema, labels } from '~/server/database/schema'
-
-const createLabelSchema = InsertLabelSchema.array().min(1)
+// we create a zod schema that is an object that contains an array of InsertLabelSchema
+const createLabelSchema = z.object({
+  labels: z.array(InsertLabelSchema).min(1),
+})
 export default defineEventHandler(async (event) => {
   if (!event.context.user) {
     throw createError({
@@ -12,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.user.id
   const bodyLabels = await readValidatedBody(event, createLabelSchema.parse)
   // add userId to each label
-  const dbLabels = bodyLabels.map(label => ({ ...label, userId }))
+  const dbLabels = bodyLabels.labels.map(label => ({ ...label, userId }))
   // upsert user label
   try {
     const returnedData = await db

@@ -1,72 +1,86 @@
 <script setup lang="ts">
-import { GoogleMap, Marker } from 'vue3-google-map'
+import { CustomMarker, GoogleMap, Marker } from 'vue3-google-map'
 
-const { googleMapsApiKey } = useRuntimeConfig()
-const { coords, locatedAt, error, resume, pause } = useGeolocation()
-const defaultCoords = { lat: 44.52253832168663, lng: 26.006091098242493 }
-const center = ref(defaultCoords || coords.value)
+const { googleMapsApiKey } = useRuntimeConfig().public
+const { coords, resume, pause } = useGeolocation({ immediate: false, enableHighAccuracy: true })
+const mapId = 'bca681cd186f5d7d'
+const lat = defineModel('lat', { type: Number })
+const lng = defineModel('lng', { type: Number })
 
+const location = computed(() => ({ lat: lat.value, lng: lng.value }))
+const draftLocation = ref()
+// Check if the location is set on the model, if not, use the geolocation, fallback to default coords.
+const center = computed(() => {
+  if (location.value.lat && location.value.lng)
+    return { lat: location.value.lat, lng: location.value.lng } as google.maps.LatLngLiteral
+
+  if (!coords.value.latitude || coords.value.latitude === Number.POSITIVE_INFINITY || !coords.value.longitude || coords.value.longitude === Number.POSITIVE_INFINITY)
+    return { lat: 44.52253832168663, lng: 26.006091098242493 }
+
+  return { lat: coords.value.latitude, lng: coords.value.longitude }
+})
 // implement logic that gets the current location of the user
 const showMap = ref(false)
-
-// Replace with your Google Maps API Key
-const loader = new Loader({
-  apiKey: 'YOUR_API_KEY',
-  version: 'weekly',
-})
+const mapRef = ref()
 
 async function openMapDialog() {
+  resume()
   showMap.value = true
-  initMap()
-}
-let map
-function initMap() {
-  const { Map } = await loader.importLibrary('maps')
-  map = new Map(document.getElementById('map'), {
-    center: { lat: -34.397, lng: 150.644 },
-    zoom: 8,
-  })
-
-  // Add click event to update location
-  map.addListener('click', (e) => {
-    location.value = e.latLng.toJSON()
-  })
+  pause()
 }
 
 function confirmLocation() {
   showMap.value = false
   // additional logic to handle location confirmation
+  lat.value = draftLocation.value.lat
+  lng.value = draftLocation.value.lng
 }
 
-function changeLocation() {
-  location.value = null
+async function changeLocation() {
+  resume()
+  showMap.value = true
+  draftLocation.value = null
+  pause()
 }
 
 const staticMapUrl = computed(() => {
   if (!location.value)
     return ''
-  return `https://maps.googleapis.com/maps/api/staticmap?center=${location.value.lat},${location.value.lng}&zoom=13&size=600x300&maptype=roadmap
-&markers=color:red%7Clabel:C%7C${location.value.lat},${location.value.lng}&key=YOUR_API_KEY`
+  return `https://maps.googleapis.com/maps/api/staticmap?zoom=16&size=600x300&map_id=${mapId}&markers=size:mid%7Canchor:BOTTOM%7Ccolor:red%7C${location.value.lat},${location.value.lng}&key=${googleMapsApiKey}`
+})
+
+watch(() => mapRef.value?.ready, (ready) => {
+  if (!ready)
+    return
+  mapRef.value.map.addListener('center_changed', () => {
+    draftLocation.value = mapRef.value.map.getCenter().toJSON()
+  })
 })
 </script>
 
 <template>
   <div>
-    <div v-if="location">
+    <div v-if="location.lat && location.lng">
       <img :src="staticMapUrl" alt="Location Map">
-      <button @click="changeLocation">
-        Change Location
-      </button>
+      <MarkerLocation class="absolute inset-x-[calc(50%-17px)] inset-y-[calc(50%-41px)] z-10" />
+      <UButton label="Schimbă locația" class="mt-2" variant="outline" @click="changeLocation" />
     </div>
     <div v-else>
-      <UButton label="Selecteaza locatia" @click="openMapDialog" />
+      <UButton label="Selectează locația" @click="openMapDialog" />
     </div>
 
     <!-- Modal Dialog for Google Maps -->
-    <UModal>
-      <!-- Google Maps will be rendered here -->
-      <GoogleMap :api-key="googleMapsApiKey" :center="center" :zoom="8" />
-      <UButton label="Confirma locatia" @click="confirmLocation" />
+    <UModal v-model="showMap">
+      <div class="p-4">
+        <!-- Google Maps will be rendered here -->
+        <MarkerLocation class="absolute inset-x-[calc(50%-17px)] inset-y-[calc(50%-41px)] z-10" />
+        <!-- <div ref="mapRef" class="h-[300px]" /> -->
+        <GoogleMap
+          ref="mapRef" :api-key="googleMapsApiKey" :center="center" :zoom="16" class="flex h-[600px] max-h-[75svh]"
+          map-id="bca681cd186f5d7d"
+        />
+        <UButton label="Confirmă locația" block class="mt-2" @click="confirmLocation" />
+      </div>
     </UModal>
   </div>
 </template>

@@ -1,9 +1,18 @@
-import process from 'node:process'
-import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-import type { DbSchema } from '~/server/utils/db'
+import { consola } from 'consola'
+import { migrate } from 'drizzle-orm/d1/migrator'
+import { useDrizzle } from '../utils/db'
 
 export default defineNitroPlugin(async () => {
-  if (process.dev)
-    migrate(useDB(undefined) as BetterSQLite3Database<DbSchema>, { migrationsFolder: 'server/database/migrations' })
+  if (!import.meta.dev)
+    return
+
+  onHubReady(async () => {
+    await migrate(useDrizzle(), { migrationsFolder: 'server/database/migrations' })
+      .then(() => {
+        consola.success('Database migrations done')
+      })
+      .catch((err) => {
+        consola.error('Database migrations failed', err)
+      })
+  })
 })

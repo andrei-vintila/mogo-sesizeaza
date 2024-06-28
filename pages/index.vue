@@ -2,21 +2,16 @@
 import { CustomMarker, GoogleMap, MarkerCluster } from 'vue3-google-map'
 import { intlFormat, intlFormatDistance } from 'date-fns'
 
+// store initialization & fetching
+const labels = useLabelsStore()
+await labels.init()
 const sesizariStore = useSesizariStore()
-const config = useRuntimeConfig()
-const { user } = useUser()
-const colorMode = useColorMode()
-const mapIdBasedColorMode = computed(() =>
-  colorMode.value === 'dark' ? '593a0446512e5198' : 'bca681cd186f5d7d',
-)
 await sesizariStore.fetchAll()
-const { coords, error, resume, pause } = useGeolocation({
-  immediate: false,
-  enableHighAccuracy: true,
-})
-const defaultCoords = { lat: 44.52253832168663, lng: 26.006091098242493 }
-const center = ref(defaultCoords || coords.value)
-const { list, containerProps, wrapperProps } = useVirtualList(sesizariStore.sesizari ?? [], {
+const { sesizari } = storeToRefs(sesizariStore)
+
+const { user } = useUser()
+
+const { list, containerProps, wrapperProps } = useVirtualList(sesizari ?? [], {
   itemHeight: 181,
 })
 const sesizariViewState = useState('sesizariView', () => 'list')
@@ -54,19 +49,7 @@ function toggleMap() {
       </div>
     </div>
     <div v-show="sesizariViewState === 'map'" class=" absolute top-[59px] inset-2 rounded-xl">
-      <GoogleMap
-        :center="center" :zoom="14" :map-id="mapIdBasedColorMode" class="h-full"
-        :api-key="config.public.googleMapsApiKey"
-      >
-        <MarkerCluster>
-          <CustomMarker
-            v-for="sesizare in sesizari" :key="sesizare.id"
-            :options="{ position: { lat: sesizare.latitude, lng: sesizare.longitude }, anchorPoint: 'BOTTOM_CENTER' }"
-          >
-            <Marker :id="sesizare.id" :title="sesizare.title" :votes="sesizare.votes" />
-          </CustomMarker>
-        </MarkerCluster>
-      </GoogleMap>
+      <!-- <SesizariMapView class="h-full" /> -->
     </div>
   </div>
 </template>

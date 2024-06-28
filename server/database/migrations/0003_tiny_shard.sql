@@ -1,1 +1,0 @@
-ALTER TABLE sesizari ADD `sesizare_date` integer;

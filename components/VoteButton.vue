@@ -6,7 +6,7 @@ const { id } = defineProps({
   },
 })
 const votes = defineModel<number>('votes', { required: true })
-const voted = defineModel<boolean>('voted', { required: true })
+const voted = defineModel<boolean | number>('voted', { required: true })
 const { vote } = useSesizariStore()
 </script>
 

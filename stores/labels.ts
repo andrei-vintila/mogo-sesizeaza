@@ -57,7 +57,7 @@ export const useLabelsStore = defineStore('labels', () => {
 
     labels.value[index] = label
     try {
-      await useFetch(`/api/label/${label.id}`, { method: 'PUT', body: label })
+      await $fetch(`/api/label/${label.id}`, { method: 'PUT', body: label })
     }
     catch (error) {
       labels.value[index] = label
@@ -79,9 +79,13 @@ export const useLabelsStore = defineStore('labels', () => {
   const idToLabels = (labelIds: Array<string>): Label[] => {
     return labels.value.filter(label => labelIds.includes(label.id))
   }
+
+  const idToLabelNames = (labelIds: Array<string>): string[] => {
+    return idToLabels(labelIds).map(label => label.name)
+  }
   // schema of Label with mandatory id
   const labelsToId = (labels: Label[]): Array<string> => {
-    return labels.map(label => label.id)
+    return useArrayMap(labels, label => label.id).value
   }
-  return { labels, init, add, update, remove, labelsToId, idToLabels }
+  return { labels, init, add, update, remove, labelsToId, idToLabels, idToLabelNames }
 })

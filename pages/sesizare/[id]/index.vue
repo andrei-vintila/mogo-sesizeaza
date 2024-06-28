@@ -7,7 +7,7 @@ const languages = usePreferredLanguages()
 const { data: sesizare } = await useFetch(`/api/sesizari/${id}`)
 const breadcrumbs = [
   { label: 'Sesizari', to: '/' },
-  { label: sesizare.value.title },
+  { label: sesizare?.value?.title },
 ]
 </script>
 
@@ -21,8 +21,11 @@ const breadcrumbs = [
             Sesizare
           </h3>
           <div class="flex ">
-            <VoteButton :id="sesizare.id" :votes="sesizare.votes" :voted="sesizare.voted" @vote="submitVote" />
-            <UButton v-if="user?.id === sesizare.reporter" label="Editează" :to="`/sesizare/${sesizare.id}/edit`" variant="ghost" color="gray" icon="i-heroicons-pencil" size="xs" />
+            <VoteButton :id="sesizare.id" :votes="sesizare.votes" :voted="sesizare.voted" />
+            <UButton
+              v-if="user?.id === sesizare.reporter" label="Editează" :to="`/sesizare/${sesizare.id}/edit`"
+              variant="ghost" color="gray" icon="i-heroicons-pencil" size="xs"
+            />
           </div>
         </div>
         <p class="mt-1 max-w-2xl text-sm leading-6 ">

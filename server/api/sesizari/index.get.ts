@@ -14,6 +14,7 @@ const querySchema = z.object({
   offset: z.number().optional().default(0),
   labels: z.string().optional(),
   status: StatusEnumSchema.optional(),
+  reporter: z.string().optional(),
   sw_lat: z.number().optional().default(44.51327340892296),
   sw_lng: z.number().optional().default(26.019562420223934),
   ne_lat: z.number().optional().default(44.54558060303962),
@@ -24,7 +25,6 @@ const querySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const db = event.context.db
-  // artifical long time for response
 
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
 
@@ -47,6 +47,7 @@ export default defineEventHandler(async (event) => {
       ),
       between(sesizare.latitude, query.sw_lat, query.ne_lat),
       between(sesizare.longitude, query.ne_lng, query.sw_lng),
+      query.reporter ? eq(sesizare.reporter, query.reporter) : isNotNull(sesizare.reporter),
     ))
     .groupBy(sesizare.id)
     .orderBy(query.sort === 'desc' ? desc(sesizare[query.sortby]) : asc(sesizare[query.sortby]))

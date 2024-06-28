@@ -1,6 +1,7 @@
 import { count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { DEFAULT_ID_SIZE, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
+import type { SesizareCard } from '~/types/sesizare'
 
 const idSchema = z.object({ sesizareId: z.string().length(DEFAULT_ID_SIZE) })
 function getInitials(fullName: string) {
@@ -27,23 +28,15 @@ export default defineEventHandler(async (event) => {
 
   const db = event.context.db
   const result = await db.select({
-    id: sesizare.id,
-    title: sesizare.title,
-    description: sesizare.description,
-    latitude: sesizare.latitude,
-    longitude: sesizare.longitude,
-    status: sesizare.status,
-    reporter: sesizare.reporter,
+    ...sesizare,
     reporterName: authUser.fullName,
-    createdAt: sesizare.createdAt,
-    updatedAt: sesizare.updatedAt,
     votes: count(sesizareVotes.voterId),
     voted: count(sesizareVotes.voterId, eq(sesizareVotes.voterId, event.context.user.id)),
   })
     .from(sesizare)
     .leftJoin(authUser, eq(sesizare.reporter, authUser.id))
     .leftJoin(sesizareVotes, eq(sesizare.id, sesizareVotes.sesizareId))
-    .where(eq(sesizare.id, sesizareId))
+    .where(eq(sesizare.id, sesizareId)) as unknown as SesizareCard[]
   // we anonymize the reporter name by using the initials
   result[0].reporterName = getInitials(result[0].reporterName)
   return result[0]

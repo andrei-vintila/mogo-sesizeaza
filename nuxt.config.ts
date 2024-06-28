@@ -1,8 +1,14 @@
 import process from 'node:process'
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@vueuse/nuxt', '@pinia/nuxt'],
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
+  modules: ['@nuxt/ui', '@vueuse/nuxt', '@pinia/nuxt', '@nuxthub/core'],
   ui: {
     icons: ['heroicons', 'simple-icons', 'mdi'],
   },
@@ -15,11 +21,14 @@ export default defineNuxtConfig({
     githubClientSecret: '',
     googleClientId: '',
     googleClientSecret: '',
-
     dbDefaultIdSize: 25,
   },
   nitro: {
     preset: 'cloudflare-pages',
   },
-  ssr: false,
+  // ssr: false,
+  hub: {
+    blob: true,
+    database: true,
+  },
 })

@@ -20,4 +20,8 @@ export default defineAppConfig({
       },
     },
   },
+  mapStyle: {
+    lightMapId: 'bca681cd186f5d7d',
+    darkMapId: '593a0446512e5198',
+  },
 })

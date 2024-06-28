@@ -1,18 +1,11 @@
-import { useDB } from '../utils/db'
-
-let drizzle: ReturnType<typeof useDB>
+import { useDrizzle } from '../utils/db'
 
 export default defineEventHandler(async (event) => {
-  const DB: D1Database = event.context.cloudflare?.env.DB
-
-  if (!drizzle)
-    drizzle = useDB(DB ?? undefined)
-
-  event.context.db = drizzle
+  event.context.db = useDrizzle()
 })
 
 declare module 'h3' {
   interface H3EventContext {
-    db: ReturnType<typeof useDB>
+    db: ReturnType<typeof useDrizzle>
   }
 }

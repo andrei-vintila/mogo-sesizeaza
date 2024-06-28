@@ -6,10 +6,11 @@ import { and, eq } from 'drizzle-orm'
 import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
 import { authUser, oAuthAccount } from '../database/schema'
 import { googleAuth } from './lucia-auth'
+import type { useDrizzle } from './db'
 import type { GitHubUser } from '@/types/github'
 import type { GoogleUser } from '@/types/gapi'
 
-type DB = ReturnType<typeof useDB>
+type DB = ReturnType<typeof useDrizzle>
 export function upsertGithubOAuthAccount(db: DB, {
   userId,
   githubUser,

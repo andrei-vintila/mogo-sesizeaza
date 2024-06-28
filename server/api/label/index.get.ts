@@ -2,11 +2,6 @@ import { eq } from 'drizzle-orm'
 import { labels } from '~/server/database/schema'
 
 export default defineEventHandler(async (event) => {
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-    })
-  }
   const db = event.context.db
   // fetch user settings from db
   try {
