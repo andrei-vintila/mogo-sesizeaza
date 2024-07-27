@@ -36,11 +36,10 @@ export function useLucia() {
 }
 
 export function githubAuth(event: H3Event) {
-  consola.info(useRuntimeConfig(event))
   return new GitHub(
     useRuntimeConfig(event).githubClientId,
     useRuntimeConfig(event).githubClientSecret,
-    { redirectURI: `${useRuntimeConfig(event).public.baseUrl}/api/auth/login/github/callback` },
+    { redirectURI: `${getRequestProtocol(event)}://${getRequestHost(event)}/api/auth/login/github/callback` },
   )
 }
 
@@ -49,7 +48,7 @@ export function googleAuth(event: H3Event) {
   return new Google(
     useRuntimeConfig(event).googleClientId,
     useRuntimeConfig(event).googleClientSecret,
-    `${useRuntimeConfig(event).public.baseUrl}/api/auth/login/google/callback`,
+    `${getRequestProtocol(event)}://${getRequestHost(event)}/api/auth/login/google/callback`,
   )
 }
 
