@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { consola } from 'consola'
 import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
@@ -11,7 +12,7 @@ export function useLucia() {
   return new Lucia(adapter, {
     sessionCookie: {
       attributes: {
-        secure: !process.dev,
+        secure: !import.meta.dev,
         sameSite: 'lax',
       },
     },
@@ -35,6 +36,7 @@ export function useLucia() {
 }
 
 export function githubAuth(event: H3Event) {
+  consola.info(useRuntimeConfig(event))
   return new GitHub(
     useRuntimeConfig(event).githubClientId,
     useRuntimeConfig(event).githubClientSecret,
@@ -43,6 +45,7 @@ export function githubAuth(event: H3Event) {
 }
 
 export function googleAuth(event: H3Event) {
+  consola.info(useRuntimeConfig(event))
   return new Google(
     useRuntimeConfig(event).googleClientId,
     useRuntimeConfig(event).googleClientSecret,
