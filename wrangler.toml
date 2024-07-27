@@ -1,7 +1,0 @@
-name = "mogo-sesizeaza"
-main = "./.output/server/index.mjs"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "prod-mogo-sesizeaza"
-database_id = "3568fa63-c29e-413a-aee1-2ff1a0707fa7"
