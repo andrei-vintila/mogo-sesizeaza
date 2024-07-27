@@ -7,12 +7,13 @@ export default defineNitroPlugin(async () => {
     return
 
   onHubReady(async () => {
+    consola.withTag('db').info('running migrations')
     await migrate(useDrizzle(), { migrationsFolder: 'server/database/migrations' })
       .then(() => {
-        consola.success('Database migrations done')
+        consola.withTag('db').success('Database migrations done')
       })
       .catch((err) => {
-        consola.error('Database migrations failed', err)
+        consola.withTag('db').error('Database migrations failed', err)
       })
   })
 })

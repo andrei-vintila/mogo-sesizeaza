@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { consola } from 'consola'
 import { generateCodeVerifier, generateState } from 'arctic'
 import { z } from 'zod'
 import { googleAuth } from '~/server/utils/lucia-auth'
@@ -44,5 +45,6 @@ export default defineEventHandler(async (event) => {
     path: '/',
     maxAge: 60 * 10,
   })
+  consola.withTag('auth').info('redirecting to google', url.toString())
   return sendRedirect(event, url.toString())
 })
