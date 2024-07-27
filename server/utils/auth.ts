@@ -1,6 +1,6 @@
 import { OAuth2RequestError } from 'arctic'
 import type { GitHubTokens, GoogleTokens } from 'arctic'
-
+import type { H3Event } from 'h3'
 import { isWithinExpirationDate } from 'oslo'
 import { and, eq } from 'drizzle-orm'
 import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
@@ -96,7 +96,7 @@ export interface GoogleToken {
 }
 
 type GoogleOAuthTokenByUserId = Pick<SelectOAuthAccount, 'userId'>
-export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserId) {
+export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserId, event: H3Event) {
   const googleTokenData = await db.query.oAuthAccount.findFirst({
     where: and(
       eq(oAuthAccount.userId, userId),
@@ -120,7 +120,7 @@ export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserI
       })
     }
     try {
-      const refreshedTokens = await googleAuth.refreshAccessToken(
+      const refreshedTokens = await googleAuth(event).refreshAccessToken(
         googleTokenData.refreshToken,
       )
       // update db with new access token

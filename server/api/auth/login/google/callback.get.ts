@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     )
   }
   try {
-    const googleTokens = await googleAuth.validateAuthorizationCode(
+    const googleTokens = await googleAuth(event).validateAuthorizationCode(
       code,
       codeVerifier,
     )

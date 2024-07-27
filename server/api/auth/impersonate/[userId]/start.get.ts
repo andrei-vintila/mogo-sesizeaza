@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       message: 'User not found',
       statusCode: 404,
+      cause: error,
     })
   }
   return sendRedirect(event, '/')

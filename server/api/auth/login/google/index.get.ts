@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 
   const state = generateState()
   const codeVerifier = generateCodeVerifier()
-  const url = await googleAuth.createAuthorizationURL(state, codeVerifier, {
+  const url = await googleAuth(event).createAuthorizationURL(state, codeVerifier, {
     scopes: [
       'openid',
       'email',

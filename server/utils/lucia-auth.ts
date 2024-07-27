@@ -2,6 +2,7 @@ import process from 'node:process'
 import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
+import type { H3Event } from 'h3'
 import * as tables from '../database/schema'
 import { useDrizzle } from './db'
 
@@ -32,19 +33,22 @@ export function useLucia() {
     },
   })
 }
-const runtimeConfig = useRuntimeConfig()
 
-export const githubAuth = new GitHub(
-  runtimeConfig.githubClientId,
-  runtimeConfig.githubClientSecret,
-  { redirectURI: `${runtimeConfig.public.baseUrl}/api/auth/login/github/callback` },
-)
+export function githubAuth(event: H3Event) {
+  return new GitHub(
+    useRuntimeConfig(event).githubClientId,
+    useRuntimeConfig(event).githubClientSecret,
+    { redirectURI: `${useRuntimeConfig(event).public.baseUrl}/api/auth/login/github/callback` },
+  )
+}
 
-export const googleAuth = new Google(
-  runtimeConfig.googleClientId,
-  runtimeConfig.googleClientSecret,
-  `${runtimeConfig.public.baseUrl}/api/auth/login/google/callback`,
-)
+export function googleAuth(event: H3Event) {
+  return new Google(
+    useRuntimeConfig(event).googleClientId,
+    useRuntimeConfig(event).googleClientSecret,
+    `${useRuntimeConfig(event).public.baseUrl}/api/auth/login/google/callback`,
+  )
+}
 
 declare module 'lucia' {
   interface Register {
