@@ -1,7 +1,6 @@
 import { verifyRequestOrigin } from 'oslo/request'
 import type { User } from 'lucia'
 import { useLucia } from '../utils/lucia-auth'
-import { useDrizzle } from '../utils/db'
 
 let lucia: ReturnType<typeof useLucia>
 
@@ -13,8 +12,9 @@ export default defineEventHandler(async (event) => {
       !originHeader
       || !hostHeader
       || !verifyRequestOrigin(originHeader, [hostHeader])
-    )
+    ) {
       return event.node.res.writeHead(403).end()
+    }
   }
   // Initialize auth (Lucia)
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CustomMarker, GoogleMap, Marker } from 'vue3-google-map'
+import { GoogleMap } from 'vue3-google-map'
 
 const { googleMapsApiKey } = useRuntimeConfig().public
 const { coords, resume, pause } = useGeolocation({ immediate: false, enableHighAccuracy: true })

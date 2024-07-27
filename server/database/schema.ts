@@ -1,6 +1,5 @@
 import { integer, primaryKey, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
-import { relations } from 'drizzle-orm'
 import { z } from 'zod'
 import { generateId } from 'lucia'
 

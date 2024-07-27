@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { CustomMarker, GoogleMap, MarkerCluster } from 'vue3-google-map'
-import { intlFormat, intlFormatDistance } from 'date-fns'
-
 // store initialization & fetching
 const labels = useLabelsStore()
 await labels.init()

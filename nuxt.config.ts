@@ -29,10 +29,7 @@ export default defineNuxtConfig({
 
   // ssr: false,
   hub: {
-    blob: true,
     database: true,
-    kv: false,
-    remote: true,
   },
 
   compatibilityDate: '2024-07-27',

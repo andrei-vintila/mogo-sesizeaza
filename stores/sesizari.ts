@@ -3,7 +3,7 @@ import { generateId } from 'lucia'
 import { FetchError } from 'ofetch'
 import type { SesizareCard } from '~/types/sesizare'
 import type { InsertSesizare } from '~/server/database/schema'
-import { StatusEnumSchema, labels } from '~/server/database/schema'
+import { StatusEnumSchema } from '~/server/database/schema'
 
 export const useSesizariStore = defineStore('sesizari', () => {
   const toast = useToast()

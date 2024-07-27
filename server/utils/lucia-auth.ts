@@ -2,6 +2,7 @@ import process from 'node:process'
 import { Lucia } from 'lucia'
 import { GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
+import * as tables from '../database/schema'
 import { useDrizzle } from './db'
 
 export function useLucia() {

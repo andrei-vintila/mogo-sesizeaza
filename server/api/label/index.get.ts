@@ -1,6 +1,3 @@
-import { eq } from 'drizzle-orm'
-import { labels } from '~/server/database/schema'
-
 export default defineEventHandler(async (event) => {
   const db = event.context.db
   // fetch user settings from db
@@ -14,6 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       message: 'Failed to fetch user labels',
+      cause: error,
     })
   }
 })

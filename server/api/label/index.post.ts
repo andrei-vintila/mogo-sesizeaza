@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { InsertLabelSchema, labels } from '~/server/database/schema'
 // we create a zod schema that is an object that contains an array of InsertLabelSchema
@@ -29,6 +28,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       message: 'Failed to upsert user settings',
+      cause: e,
     })
   }
 })
