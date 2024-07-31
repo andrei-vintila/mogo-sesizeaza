@@ -1,7 +1,9 @@
 import { eq } from 'drizzle-orm'
 import { labels } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   if (!event.context.user) {
     throw createError({
       statusCode: 401,
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
       message: 'Missing label id',
     })
   }
-  const db = event.context.db
+  const db = useDrizzle()
   // upsert user label
   try {
     await db.delete(labels).where(eq(labels.id, labelId))

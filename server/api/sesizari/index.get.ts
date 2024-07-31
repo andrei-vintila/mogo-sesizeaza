@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { and, asc, between, count, desc, eq, isNotNull, like, or } from 'drizzle-orm'
 import { SelectSesizareSchema, StatusEnumSchema, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 const SelectSesizareCardSchema = SelectSesizareSchema.extend({
   reporterName: z.string(),
@@ -24,7 +25,8 @@ const querySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const db = event.context.db
+  await requireUserSession(event)
+  const db = useDrizzle()
 
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
 

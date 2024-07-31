@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { InsertLabelSchema, labels } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 // we create a zod schema that is an object that contains an array of InsertLabelSchema
 const createLabelSchema = z.object({
   labels: z.array(InsertLabelSchema).min(1),
 })
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   if (!event.context.user) {
     throw createError({
       statusCode: 401,

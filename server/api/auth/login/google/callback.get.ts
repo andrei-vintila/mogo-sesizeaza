@@ -2,13 +2,14 @@ import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
 import { authUser, oAuthAccount } from '@/server/database/schema'
-import { upsertAuthUser, upsertGoogleOAuthAccount } from '~/server/utils/auth'
+import { requireUserSession, upsertAuthUser, upsertGoogleOAuthAccount } from '~/server/utils/auth'
 import type { GoogleUser } from '~/types/gapi'
 import { googleAuth } from '~/server/utils/lucia-auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const lucia = event.context.lucia
-  const db = event.context.db
+  const db = useDrizzle()
   const query = getQuery(event)
   const forcePrompt = query.prompt === 'consent'
   if (event.context.user && !forcePrompt)

@@ -2,6 +2,7 @@ import { count, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { DEFAULT_ID_SIZE, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
 import type { SesizareCard } from '~/types/sesizare'
+import { requireUserSession } from '~/server/utils/auth'
 
 const idSchema = z.object({ sesizareId: z.string().length(DEFAULT_ID_SIZE) })
 function getInitials(fullName: string) {
@@ -24,9 +25,10 @@ function getInitials(fullName: string) {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const { sesizareId } = await getValidatedRouterParams(event, params => idSchema.parse(params))
 
-  const db = event.context.db
+  const db = useDrizzle()
   const result = await db.select({
     ...sesizare,
     reporterName: authUser.fullName,

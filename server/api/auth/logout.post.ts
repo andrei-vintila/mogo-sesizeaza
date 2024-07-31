@@ -1,7 +1,9 @@
 import { eq } from 'drizzle-orm'
 import { session } from '@/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const lucia = event.context.lucia
   const db = event.context.db
   // check if user is authenticated

@@ -1,9 +1,11 @@
 import { z } from 'zod'
 import { and, eq } from 'drizzle-orm'
 import { DEFAULT_ID_SIZE, sesizareVotes } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 const idSchema = z.object({ sesizareId: z.string().length(DEFAULT_ID_SIZE) })
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const { sesizareId } = await getValidatedRouterParams(event, params => idSchema.parse(params))
   if (!event.context.user) {
     throw createError({
@@ -11,7 +13,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 401,
     })
   }
-  const db = event.context.db
+  const db = useDrizzle()
   const vote = await db.query.sesizareVotes.findFirst({
     where: and(eq(sesizareVotes.sesizareId, sesizareId), eq(sesizareVotes.voterId, event.context.user.id)),
   })

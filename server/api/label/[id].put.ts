@@ -1,10 +1,12 @@
 import { eq } from 'drizzle-orm'
 import { UpsertLabelSchema, labels } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 const createLabelBodySchema = UpsertLabelSchema.omit({
   id: true,
 })
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   if (!event.context.user) {
     throw createError({
       statusCode: 401,
@@ -19,14 +21,14 @@ export default defineEventHandler(async (event) => {
     })
   }
   const label = await readValidatedBody(event, createLabelBodySchema.parse)
-  const db = event.context.db
+  const db = useDrizzle()
   // upsert user label
   try {
     const returnedData = await db
       .update(labels)
       .set(label)
       .where(eq(labels.id, labelId))
-
+      .returning()
     setResponseStatus(event, 202)
     return returnedData.length > 0 ? returnedData : returnedData[0]
   }

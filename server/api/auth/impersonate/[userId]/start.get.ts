@@ -1,9 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { authUser } from '@/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const lucia = event.context.lucia
-  const db = event.context.db
+  const db = useDrizzle()
   if (!event.context.user) {
     throw createError({
       message: 'Unauthorized',

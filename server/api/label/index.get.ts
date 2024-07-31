@@ -1,5 +1,8 @@
+import { requireUserSession } from '~/server/utils/auth'
+
 export default defineEventHandler(async (event) => {
-  const db = event.context.db
+  await requireUserSession(event)
+  const db = useDrizzle()
   // fetch user settings from db
   try {
     const labelData = await db.query.labels.findMany({

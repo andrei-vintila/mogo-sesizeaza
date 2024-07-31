@@ -1,4 +1,7 @@
+import { requireUserSession } from '~/server/utils/auth'
+
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const lucia = event.context.lucia
   if (!event.context.user) {
     throw createError({

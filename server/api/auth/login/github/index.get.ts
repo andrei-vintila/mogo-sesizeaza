@@ -1,8 +1,10 @@
 import process from 'node:process'
 import { generateState } from 'arctic'
 import { githubAuth } from '~/server/utils/lucia-auth'
+import { requireUserSession } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   if (event.context.user)
     return sendRedirect(event, '/')
 

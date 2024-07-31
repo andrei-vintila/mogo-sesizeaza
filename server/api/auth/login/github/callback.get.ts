@@ -2,13 +2,14 @@ import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
 import { authUser, oAuthAccount } from '@/server/database/schema'
-import { upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
+import { requireUserSession, upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
 import type { GitHubUser } from '~/types/github'
 import { githubAuth } from '~/server/utils/lucia-auth'
 
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   const lucia = event.context.lucia
-  const db = event.context.db
+  const db = useDrizzle()
   if (event.context.user)
     return sendRedirect(event, '/')
 

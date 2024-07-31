@@ -1,8 +1,10 @@
 import type { InsertSesizare } from '~/server/database/schema'
 import { InsertSesizareSchema, sesizare } from '~/server/database/schema'
+import { requireUserSession } from '~/server/utils/auth'
 
 const requestBodySchema = InsertSesizareSchema.omit({ id: true, createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
   if (!event.context.user) {
     throw createError({
       message: 'Unauthorized',

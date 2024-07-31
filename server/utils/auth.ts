@@ -3,10 +3,12 @@ import type { GitHubTokens, GoogleTokens } from 'arctic'
 import type { H3Event } from 'h3'
 import { isWithinExpirationDate } from 'oslo'
 import { and, eq } from 'drizzle-orm'
+import { verifyRequestOrigin } from 'oslo/request'
+import type { User } from 'lucia'
 import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
 import { authUser, oAuthAccount } from '../database/schema'
 import * as tables from '../database/schema'
-import { googleAuth } from './lucia-auth'
+import { googleAuth, useLucia } from './lucia-auth'
 import type { useDrizzle } from './db'
 import type { GitHubUser } from '@/types/github'
 import type { GoogleUser } from '@/types/gapi'
@@ -182,5 +184,59 @@ export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserI
   return {
     accessToken: googleTokenData.accessToken,
     accessTokenExpiresAt: googleTokenData.expiresAt,
+  }
+}
+
+let lucia: ReturnType<typeof useLucia> | null = null
+
+export async function requireUserSession(event: H3Event) {
+  if (event.method !== 'GET' && !import.meta.dev) {
+    const originHeader = getHeader(event, 'Origin') ?? null
+    const hostHeader = getHeader(event, 'Host') ?? null
+    if (
+      !originHeader
+      || !hostHeader
+      || !verifyRequestOrigin(originHeader, [hostHeader])
+    ) {
+      return event.node.res.writeHead(403).end()
+    }
+  }
+  // Initialize auth (Lucia)
+
+  if (!lucia)
+    lucia = useLucia()
+
+  event.context.lucia = lucia
+
+  const sessionId = getCookie(event, lucia.sessionCookieName) ?? null
+  if (!sessionId) {
+    event.context.user = null
+    event.context.session = null
+    return
+  }
+
+  const { session, user } = await lucia.validateSession(sessionId)
+  if (session && session.fresh) {
+    appendResponseHeader(
+      event,
+      'Set-Cookie',
+      lucia.createSessionCookie(session.id).serialize(),
+    )
+  }
+  if (!session) {
+    appendResponseHeader(
+      event,
+      'Set-Cookie',
+      lucia.createBlankSessionCookie().serialize(),
+    )
+  }
+  event.context.session = session
+  event.context.user = user
+}
+
+declare module 'h3' {
+  interface H3EventContext {
+    user: User | null
+    lucia: ReturnType<typeof useLucia>
   }
 }
