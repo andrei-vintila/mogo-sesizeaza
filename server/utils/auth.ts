@@ -190,14 +190,14 @@ export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserI
 let lucia: ReturnType<typeof useLucia> | null = null
 
 export async function requireUserSession(event: H3Event) {
-  if (event.method !== 'GET' && !import.meta.dev) {
+  if (event.method !== 'GET') {
     const originHeader = getHeader(event, 'Origin') ?? null
     const hostHeader = getHeader(event, 'Host') ?? null
-    if (
+    if (!import.meta.dev && (
       !originHeader
       || !hostHeader
       || !verifyRequestOrigin(originHeader, [hostHeader])
-    ) {
+    )) {
       return event.node.res.writeHead(403).end()
     }
   }
