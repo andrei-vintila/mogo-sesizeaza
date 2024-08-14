@@ -1,64 +1,64 @@
 <script lang="ts" setup>
-import { intlFormat, intlFormatDistance } from 'date-fns'
 import type { SesizareCard } from '~/types/sesizare'
 
-defineProps({
+const props = defineProps({
   sesizare: {
     type: Object as PropType<SesizareCard>,
     required: true,
   },
 })
+const route = useRoute()
+const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
 </script>
 
 <template>
   <UCard :title="sesizare.title">
     <template #header>
-      <div class="flex flex-col gap-y-2">
-        <div class="flex flex-grow justify-between w-auto">
-          <div class="flex gap-y-2">
-            <div class="flex space-x-3 items-center">
-              <StatusBadge :status="sesizare.status" class="h-6 w-6" />
-              <h2 class="md:text-lg text-md font-semibold leading-6 underline hover:text-primary">
-                <ULink :to="`/sesizare/${sesizare.id}`" class="truncate overflow-ellipsis">
-                  {{ sesizare.title }}
-                </ULink>
-              </h2>
-            </div>
-          </div>
-          <div>
-            <VoteButton :id="sesizare.id" :votes="sesizare.votes" :voted="Boolean(sesizare.voted)" />
-          </div>
-        </div>
-
-        <div class="inline-flex items-center  gap-x-2">
-          <UTooltip
-            :text="intlFormat(sesizare.createdAt, {
-              dateStyle: 'long',
-              timeStyle: 'short',
-            }, { locale: 'ro' })"
-          >
-            <span class="text-sm text-gray-500 dark:text-gray-300 pr-1">Creat</span>
-            <time class="text-sm text-gray-500 dark:text-gray-300"> {{ intlFormatDistance(sesizare.createdAt, new
-              Date(), { locale: 'ro' }) }}</time>
-          </UTooltip>
-          <svg viewBox="0 0 2 2" class="h-1 w-1 fill-gray-500 dark:fill-gray-300">
-            <circle cx="1" cy="1" r="1" />
-          </svg>
-          <UAvatar size="xs" :alt="sesizare.reporterName" />
-        </div>
-      </div>
+      <SesizareHeader :sesizare="sesizare" :is-single-view="isSingleView" />
     </template>
-    <div class="flex flex-row justify-between">
+    <div v-if="!isSingleView" class="flex flex-row justify-between">
       <div class="flex flex-col space-y-2">
         <p class="text-sm ">
           {{ sesizare.description }}
         </p>
         <div class="flex flex-wrap gap-2">
-          <UBadge
-            v-for="label in sesizare.labels" :key="label" variant="outline" color="gray"
-            :label="label"
-          />
+          <UBadge v-for="label in sesizare.labels" :key="label" variant="outline" color="gray" :label="label" />
         </div>
+      </div>
+    </div>
+    <div v-if="isSingleView" class="flex flex-col space-y-4">
+      <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+        <dt class="text-sm font-medium ">
+          Descriere detaliata
+        </dt>
+        <dd class="text-sm leading-6 sm:col-span-2">
+          {{ sesizare.description }}
+        </dd>
+      </div>
+      <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+        <dt class="text-sm font-medium ">
+          Locatie
+        </dt>
+        <dd class="mt-1 text-sm leading-6  sm:col-span-2 sm:mt-0 relative group tab-index-0">
+          <LocationViewer :static-map-url="getStaticMapUrl(sesizare.latitude, sesizare.longitude, 16) " />
+          <UButton
+            class="absolute bottom-2 left-1/2 transform -translate-x-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
+            label="Vezi pe Google Maps"
+            target="_blank"
+            :to="`https://www.google.com/maps/search/?api=1&query=${sesizare.latitude},${sesizare.longitude}`"
+            rel="noopener noreferrer"
+            color="gray"
+            icon="i-heroicons-arrow-top-right-on-square"
+          />
+        </dd>
+      </div>
+      <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+        <dt class="text-sm font-medium ">
+          Etichete
+        </dt>
+        <dd class="text-sm leading-6 sm:col-span-2">
+          <UBadge v-for="label in sesizare.labels" :key="label" variant="outline" color="gray" :label="label" />
+        </dd>
       </div>
     </div>
   </UCard>

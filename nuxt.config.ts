@@ -25,9 +25,13 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'cloudflare-pages',
+    experimental: {
+      tasks: true,
+      openAPI: true,
+    },
   },
   logLevel: 'verbose',
-  // ssr: false,
+  ssr: false,
   hub: {
     database: true,
   },

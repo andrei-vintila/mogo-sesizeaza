@@ -69,7 +69,7 @@ const userLinks = [
           rounded: '',
           shadow: '',
           header: {
-            padding: 'py-2 px-4',
+            padding: 'py-2 px-4 flex flex-row justify-between',
           },
         }"
       >

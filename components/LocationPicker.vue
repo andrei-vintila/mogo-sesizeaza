@@ -61,8 +61,7 @@ watch(() => mapRef.value?.ready, (ready) => {
 <template>
   <div>
     <div v-if="location.lat && location.lng">
-      <img :src="staticMapUrl" alt="Location Map">
-      <MarkerLocation class="absolute inset-x-[calc(50%-17px)] inset-y-[calc(50%-41px)] z-10" />
+      <LocationViewer :static-map-url="staticMapUrl" />
       <UButton label="Schimbă locația" class="mt-2" variant="outline" @click="changeLocation" />
     </div>
     <div v-else>

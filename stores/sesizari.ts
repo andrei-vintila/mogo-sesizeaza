@@ -27,6 +27,20 @@ export const useSesizariStore = defineStore('sesizari', () => {
   const getSesizariWithinBounds = async (bounds: google.maps.LatLngBounds) => {
     return sesizari.value.filter(s => bounds.contains(new google.maps.LatLng(s.latitude, s.longitude)))
   }
+  const fetchById = async (id: string) => {
+    const { data } = await useFetch<SesizareCard>(`/api/sesizare/${id}`, {
+      key: `sesizare-${id}`,
+    })
+    if (data.value !== null && sesizari.value.find(s => s.id === id) === undefined) {
+      sesizari.value.push({
+        ...data.value,
+        createdAt: new Date(data.value.createdAt),
+        updatedAt: new Date(data.value.updatedAt),
+        labels: idToLabelNames(data.value.labels),
+        voted: Boolean(data.value.voted),
+      })
+    }
+  }
   const addSesizare = async (insertSesizare: InsertSesizare) => {
     if (!user.value || !user.value.fullName) {
       toast.add({
@@ -141,5 +155,9 @@ export const useSesizariStore = defineStore('sesizari', () => {
     return useArrayFindIndex(sesizari, s => s.id === sesizareId)
   }
 
-  return { sesizari, fetchAll, getSesizariWithinBounds, addSesizare, updateSesizare, getSesizareIndexById, vote }
+  const getSesizareReactiveById = (sesizareId: string) => {
+    return useArrayFind(sesizari, s => s.id === sesizareId)
+  }
+
+  return { sesizari, fetchAll, getSesizariWithinBounds, addSesizare, updateSesizare, getSesizareIndexById, vote, fetchById, getSesizareReactiveById }
 })
