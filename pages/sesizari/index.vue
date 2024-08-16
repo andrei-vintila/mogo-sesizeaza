@@ -5,7 +5,6 @@ await labels.init()
 const sesizariStore = useSesizariStore()
 await sesizariStore.fetchAll()
 const { sesizari } = storeToRefs(sesizariStore)
-
 const { list, containerProps, wrapperProps } = useVirtualList(sesizari ?? [], {
   itemHeight: 181,
 })
@@ -24,14 +23,14 @@ const sesizariViewState = useState('sesizariView', () => 'list')
         </div>
       </div>
     </div>
-    <div v-show="sesizariViewState === 'map'" class="absolute top-[59px] inset-2 rounded-xl">
+    <div v-show="sesizariViewState === 'map'" class=" absolute top-[59px] inset-2 rounded-xl">
       <SesizariMapView class="h-full" />
     </div>
   </div>
 </template>
 
 <style>
- .height-minus-header {
-   height: calc(100svh - 53px);
- }
+.height-minus-header {
+  height: calc(100svh - 53px);
+}
 </style>

@@ -7,6 +7,6 @@ export default defineNuxtRouteMiddleware(async () => {
   if (!user)
     throw createError('Failed to fetch data')
   user.value = (authUser ?? null) as User | null
-  if (user.value)
+  if (user.value && !$clientPosthog?._isIdentified)
     $clientPosthog?.identify(user.value?.id, { email: user.value?.email })
 })

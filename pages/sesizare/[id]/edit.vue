@@ -39,7 +39,7 @@ async function handleSubmit(formData: Schema) {
       reporter: sesizare?.reporter || '',
       createdAt: sesizare?.createdAt || new Date(),
       updatedAt: new Date(),
-      status: sesizare?.status || 'new',
+      status: sesizare?.status ?? 'new',
       reporterName: sesizare?.reporterName || '',
       votes: sesizare?.votes || 0,
       voted: sesizare?.voted || false,
