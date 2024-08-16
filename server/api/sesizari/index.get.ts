@@ -3,12 +3,6 @@ import { and, asc, between, count, desc, eq, isNotNull, like, or } from 'drizzle
 import { SelectSesizareSchema, StatusEnumSchema, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
 import { requireUserSession } from '~/server/utils/auth'
 
-const SelectSesizareCardSchema = SelectSesizareSchema.extend({
-  reporterName: z.string(),
-  votes: z.number(),
-  voted: z.number(),
-})
-type SelectSesizareCard = z.infer<typeof SelectSesizareCardSchema>
 const querySchema = z.object({
   search: z.string().optional(),
   limit: z.number().optional().default(25),
@@ -29,13 +23,21 @@ export default defineEventHandler(async (event) => {
   const db = useDrizzle()
 
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
-
   const result = await db.select(
     {
-      ...sesizare,
+      id: sesizare.id,
+      title: sesizare.title,
+      description: sesizare.description,
+      labels: sesizare.labels,
+      status: sesizare.status,
+      createdAt: sesizare.createdAt,
+      updatedAt: sesizare.updatedAt,
+      reporter: sesizare.reporter,
+      latitude: sesizare.latitude,
+      longitude: sesizare.longitude,
       reporterName: authUser.fullName,
       votes: count(sesizareVotes.voterId),
-      voted: count(sesizareVotes.voterId, eq(sesizareVotes.voterId, event.context.user?.id || '')),
+      voted: eq(sesizareVotes.voterId, event.context.user?.id || ''),
     },
   )
     .from(sesizare)
@@ -56,7 +58,7 @@ export default defineEventHandler(async (event) => {
     .limit(query.limit)
     .offset(query.offset)
 
-  return result as unknown as SelectSesizareCard[]
+  return result
 
   // result.map((r) => {
   //   r.reporterName = getInitials(r.reporterName)

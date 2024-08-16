@@ -1,40 +1,39 @@
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { z } from 'zod'
 import { generateId } from 'lucia'
 import { InsertLabelSchema } from '~/server/database/schema'
 
-const LabelSchema = InsertLabelSchema.pick({
+const _LabelSchema = InsertLabelSchema.pick({
   id: true,
   name: true,
 }).required({ id: true })
-const AddLabelSchema = InsertLabelSchema.pick({
+const _AddLabelSchema = InsertLabelSchema.pick({
   id: true,
   name: true,
 })
-export type Label = z.infer<typeof LabelSchema>
-export type AddLabel = z.infer<typeof AddLabelSchema>
+export type Label = z.infer<typeof _LabelSchema>
+export type AddLabel = z.infer<typeof _AddLabelSchema>
+
 export const useLabelsStore = defineStore('labels', () => {
-  const labels = ref<Label[]>([])
+  const labelsSet = new Set<Label>()
+
   const init = async () => {
-    const { data } = await useFetch('/api/label', {
-      key: 'labels',
-    })
-    syncRef(labels, data, {
-      direction: 'rtl',
-      transform: {
-        rtl: (right) => {
-          return right as Label[]
-        },
-      },
-    })
+    const data = await $fetch<Label[]>('/api/label')
+    labelsSet.clear()
+    data.forEach(label => labelsSet.add(label))
   }
-  const add = async (newLabels: AddLabel[]) => {
-    const data: Label[] = newLabels.map((l) => {
-      l.id = generateId(25)
-      const newLabel = l as Label
-      labels.value.push(newLabel)
-      return newLabel
+
+  const add = async (newLabels: AddLabel[]): Promise<Label[]> => {
+    const data: Label[] = newLabels.map(l => ({
+      ...l,
+      id: generateId(25),
+    }))
+
+    data.forEach((label) => {
+      labelsSet.add(label)
     })
+
     try {
       await $fetch('/api/label', {
         method: 'POST',
@@ -43,49 +42,69 @@ export const useLabelsStore = defineStore('labels', () => {
       return data
     }
     catch (error) {
-      // remove the number of labels added
-      newLabels.map(() =>
-        labels.value.pop(),
-      )
+      // Remove the added labels in case of error
+      data.forEach((label) => {
+        labelsSet.delete(label)
+      })
+      throw error
     }
   }
 
-  const update = async (label: Label) => {
-    const index = labels.value.findIndex(l => l.id === label.id)
-    if (index === -1)
+  const update = async (label: Label): Promise<void> => {
+    const oldLabel = Array.from(labelsSet).find(l => l.id === label.id)
+    if (!oldLabel)
       return
 
-    labels.value[index] = label
+    labelsSet.delete(oldLabel)
+    labelsSet.add(label)
+
     try {
       await $fetch(`/api/label/${label.id}`, { method: 'PUT', body: label })
     }
     catch (error) {
-      labels.value[index] = label
+      labelsSet.delete(label)
+      labelsSet.add(oldLabel)
+      throw error
     }
   }
-  const remove = async (label: Label) => {
-    const index = labels.value.findIndex(l => l.id === label.id)
-    if (index === -1)
+
+  const remove = async (label: Label): Promise<void> => {
+    if (!labelsSet.has(label))
       return
 
-    labels.value.splice(index, 1)
+    labelsSet.delete(label)
+
     try {
-      await useFetch(`/api/label/${label.id}`, { method: 'DELETE' })
+      await $fetch(`/api/label/${label.id}`, { method: 'DELETE' })
     }
     catch (error) {
-      labels.value.splice(index, 0, label)
+      labelsSet.add(label)
+      throw error
     }
   }
-  const idToLabels = (labelIds: Array<string>): Label[] => {
-    return labels.value.filter(label => labelIds.includes(label.id))
+
+  const idToLabels = (labelIds: string[]): Label[] => {
+    return Array.from(labelsSet).filter(label => labelIds.includes(label.id))
   }
 
-  const idToLabelNames = (labelIds: Array<string>): string[] => {
+  const idToLabelNames = (labelIds: string[]): string[] => {
     return idToLabels(labelIds).map(label => label.name)
   }
-  // schema of Label with mandatory id
-  const labelsToId = (labels: Label[]): Array<string> => {
-    return useArrayMap(labels, label => label.id).value
+
+  const labelsToId = (labelsArray: Label[]): string[] => {
+    return labelsArray.map(label => label.id)
   }
-  return { labels, init, add, update, remove, labelsToId, idToLabels, idToLabelNames }
+
+  const labels = computed(() => Array.from(labelsSet))
+
+  return {
+    labels,
+    init,
+    add,
+    update,
+    remove,
+    labelsToId,
+    idToLabels,
+    idToLabelNames,
+  }
 })

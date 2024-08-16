@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { UpsertSesizareSchema, sesizare } from '~/server/database/schema'
 import { requireUserSession } from '~/server/utils/auth'
 
+const requestBodySchema = UpsertSesizareSchema.omit({ createdAt: true, updatedAt: true })
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
   if (!event.context.user) {
@@ -13,12 +14,12 @@ export default defineEventHandler(async (event) => {
   if (!sesizareId) {
     throw createError({
       statusCode: 400,
-      message: 'Missing person id',
+      message: 'Missing sesizare id',
     })
   }
   const sesizareBody = await readValidatedBody(
     event,
-    UpsertSesizareSchema.parse,
+    requestBodySchema.parse,
   )
   const db = useDrizzle()
 

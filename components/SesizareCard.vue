@@ -22,13 +22,13 @@ const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
           {{ sesizare.description }}
         </p>
         <div class="flex flex-wrap gap-2">
-          <UBadge v-for="label in sesizare.labels" :key="label" variant="outline" color="gray" :label="label" />
+          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="outline" color="gray" :label="label.name" />
         </div>
       </div>
     </div>
     <div v-if="isSingleView" class="flex flex-col space-y-4">
       <div class="sm:grid sm:grid-cols-3 sm:gap-4">
-        <dt class="text-sm font-medium ">
+        <dt class="text-sm font-medium mb-1 ">
           Descriere detaliata
         </dt>
         <dd class="text-sm leading-6 sm:col-span-2">
@@ -36,28 +36,25 @@ const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
         </dd>
       </div>
       <div class="sm:grid sm:grid-cols-3 sm:gap-4">
-        <dt class="text-sm font-medium ">
+        <dt class="text-sm font-medium mb-1 ">
           Locatie
         </dt>
         <dd class="mt-1 text-sm leading-6  sm:col-span-2 sm:mt-0 relative group tab-index-0">
           <LocationViewer :static-map-url="getStaticMapUrl(sesizare.latitude, sesizare.longitude, 16) " />
           <UButton
             class="absolute bottom-2 left-1/2 transform -translate-x-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
-            label="Vezi pe Google Maps"
-            target="_blank"
+            label="Vezi pe Google Maps" target="_blank"
             :to="`https://www.google.com/maps/search/?api=1&query=${sesizare.latitude},${sesizare.longitude}`"
-            rel="noopener noreferrer"
-            color="gray"
-            icon="i-heroicons-arrow-top-right-on-square"
+            rel="noopener noreferrer" color="gray" icon="i-heroicons-arrow-top-right-on-square"
           />
         </dd>
       </div>
       <div class="sm:grid sm:grid-cols-3 sm:gap-4">
-        <dt class="text-sm font-medium ">
+        <dt class="text-sm font-medium mb-1 ">
           Etichete
         </dt>
-        <dd class="text-sm leading-6 sm:col-span-2">
-          <UBadge v-for="label in sesizare.labels" :key="label" variant="outline" color="gray" :label="label" />
+        <dd class="text-sm leading-6 sm:col-span-2 flex gap-2">
+          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="outline" color="gray" :label="label.name" />
         </dd>
       </div>
     </div>

@@ -3,7 +3,7 @@ import type { InsertSesizare } from '~/server/database/schema'
 import { DEFAULT_ID_SIZE, InsertSesizareSchema, sesizare, sesizareVotes } from '~/server/database/schema'
 import { requireUserSession } from '~/server/utils/auth'
 
-const requestBodySchema = InsertSesizareSchema.omit({ id: true, createdAt: true, updatedAt: true, status: true, reporter: true })
+const requestBodySchema = InsertSesizareSchema.omit({ createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
   if (!event.context.user) {
@@ -14,18 +14,18 @@ export default defineEventHandler(async (event) => {
   }
   const db = useDrizzle()
   const sesizareBody = await readValidatedBody(event, requestBodySchema.parse)
-  const sesizareRecord: InsertSesizare = {
+  const sesizareRecord = {
     ...sesizareBody,
     reporter: event.context.user?.id ?? 'o9m0ob314ksjtbgblsnqxgddr',
-    id: generateId(DEFAULT_ID_SIZE),
+    id: sesizareBody.id || generateId(DEFAULT_ID_SIZE),
   }
-  const dbTransaction = db.transaction(async (tx) => {
-    tx.insert(sesizare).values(sesizareRecord).returning()
-    tx.insert(sesizareVotes).values({ sesizareId: sesizareRecord.id, voterId: event.context.user?.id })
-  })
+  const dbBatch = db.batch([
+    db.insert(sesizare).values(sesizareRecord).returning(),
+    db.insert(sesizareVotes).values({ sesizareId: sesizareRecord.id, voterId: event.context.user?.id }),
+  ])
 
   try {
-    return await dbTransaction
+    return await dbBatch
   }
   catch (error) {
     throw createError({

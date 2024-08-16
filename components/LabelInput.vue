@@ -28,7 +28,7 @@ const { labels } = storeToRefs(labelStore)
 <template>
   <USelectMenu
     v-model="sesizareLabels" :options="labels" searchable
-    option-attribute="name" multiple
+    multiple by="id"
   >
     <template #label>
       <template v-if="sesizareLabels.length">

@@ -30,16 +30,32 @@ export default defineEventHandler(async (event) => {
 
   const db = useDrizzle()
   const result = await db.select({
-    ...sesizare,
-    reporterName: authUser.fullName,
+    id: sesizare.id,
+    title: sesizare.title,
+    description: sesizare.description,
+    labels: sesizare.labels,
+    status: sesizare.status,
+    createdAt: sesizare.createdAt,
+    updatedAt: sesizare.updatedAt,
+    reporter: sesizare.reporter,
+    longitude: sesizare.longitude,
+    latitude: sesizare.latitude,
+    reporterName: authUser.fullName ?? '',
     votes: count(sesizareVotes.voterId),
-    voted: count(sesizareVotes.voterId, eq(sesizareVotes.voterId, event.context.user.id)),
+    voted: eq(sesizareVotes.voterId, event.context.user?.id || ''),
   })
     .from(sesizare)
     .leftJoin(authUser, eq(sesizare.reporter, authUser.id))
     .leftJoin(sesizareVotes, eq(sesizare.id, sesizareVotes.sesizareId))
-    .where(eq(sesizare.id, sesizareId)) as unknown as SesizareCard[]
+    .where(eq(sesizare.id, sesizareId))
   // we anonymize the reporter name by using the initials
-  result[0].reporterName = getInitials(result[0].reporterName)
-  return result[0]
+  const sesizareResult = result[0]
+  if (sesizareResult) {
+    sesizareResult.reporterName = getInitials(sesizareResult.reporterName ?? '')
+    return sesizareResult
+  }
+  throw createError({
+    statusCode: 404,
+    message: 'Sesizare not found',
+  })
 })

@@ -36,14 +36,20 @@ const breadcrumbs = computed(() => [
 ])
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   // save the sesizare
-  const labels = event.data.labels?.map(label => label.id) || []
   try {
     const result = await sesizariStore.addSesizare({
       ...event.data,
       latitude: event.data.lat || 0,
       longitude: event.data.lng || 0,
       reporter: user.value?.id || '',
-      labels,
+      labels: event.data.labels || [],
+      description: event.data.description || '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      status: 'new',
+      reporterName: user.value?.fullName || '',
+      votes: 1,
+      voted: true,
     })
     if (result instanceof Error)
       throw result
