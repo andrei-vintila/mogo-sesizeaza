@@ -22,7 +22,7 @@ const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
           {{ sesizare.description }}
         </p>
         <div class="flex flex-wrap gap-2">
-          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="outline" color="gray" :label="label.name" />
+          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="soft" :label="label.name" />
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@ const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
           Etichete
         </dt>
         <dd class="text-sm leading-6 sm:col-span-2 flex gap-2">
-          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="outline" color="gray" :label="label.name" />
+          <UBadge v-for="label in sesizare.labels" :key="label.id" variant="soft" :label="label.name" />
         </dd>
       </div>
     </div>

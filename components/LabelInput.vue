@@ -26,10 +26,7 @@ const { labels } = storeToRefs(labelStore)
 </script>
 
 <template>
-  <USelectMenu
-    v-model="sesizareLabels" :options="labels" searchable
-    multiple by="id"
-  >
+  <USelectMenu v-model="sesizareLabels" :options="labels" searchable multiple by="id">
     <template #label>
       <template v-if="sesizareLabels.length">
         <UBadge v-for="label in sesizareLabels" :key="label.id" :label="label.name" variant="soft" />

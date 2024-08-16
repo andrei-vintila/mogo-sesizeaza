@@ -24,6 +24,21 @@ export default defineTask({
       {
         name: 'Apa potabilă',
       },
+      {
+        name: 'Zona Stadion',
+      },
+      {
+        name: 'Zona Livadă',
+      },
+      {
+        name: 'Parc',
+      },
+      {
+        name: 'Primărie',
+      },
+      {
+        name: 'Educație',
+      },
     ]
     await useDrizzle().insert(tables.labels).values(labels)
     return { result: 'success' }
