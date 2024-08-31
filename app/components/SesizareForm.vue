@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { z } from 'zod'
+import { StatusEnumSchema } from '@@/server/database/schema'
 import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
-import { StatusEnumSchema } from '@/server/database/schema'
 
 defineProps<{
   isEditing?: boolean

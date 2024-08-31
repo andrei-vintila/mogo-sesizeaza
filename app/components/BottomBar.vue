@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { useUser } from '#imports'
-
+const { mapToggle } = withDefaults(defineProps<{
+  mapToggle?: boolean
+}>(), {
+  mapToggle: true,
+})
 const sesizariViewState = useState('sesizariView')
 const { user } = useUser()
 
@@ -18,27 +21,12 @@ function handleToggleMap() {
       class="backdrop-blur-sm p-2 min-w-[50%] flex space-x-2 justify-center rounded-full dark:border-white/30 border-black/30 border-[0.5px]"
     >
       <UButton
-        variant="ghost"
-        color="gray"
-        size="lg"
-        :icon="toggleIcon"
-        :label="toggleLabel"
-        :ui="{ rounded: 'rounded-full' }"
-        @click="handleToggleMap"
+        v-if="mapToggle" variant="ghost" color="gray" size="lg" :icon="toggleIcon" :label="toggleLabel"
+        :ui="{ rounded: 'rounded-full' }" @click="handleToggleMap"
       />
+      <UButton to="/sesizare/" color="black" size="lg" label="Adauga sesizare" :ui="{ rounded: 'rounded-full' }" />
       <UButton
-        to="/sesizare/"
-        color="black"
-        size="lg"
-        label="Adauga sesizare"
-        :ui="{ rounded: 'rounded-full' }"
-      />
-      <UButton
-        v-if="user"
-        to="/me/sesizari"
-        variant="ghost"
-        size="lg"
-        label="Sesizarile mele"
+        v-if="user" to="/me/sesizari" variant="ghost" size="lg" label="Sesizarile mele"
         :ui="{ rounded: 'rounded-full' }"
       />
     </div>

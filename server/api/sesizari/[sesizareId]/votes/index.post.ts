@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { and, eq } from 'drizzle-orm'
-import { DEFAULT_ID_SIZE, sesizareVotes } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { DEFAULT_ID_SIZE, sesizareVotes } from '@@/server/database/schema'
 
 const idSchema = z.object({ sesizareId: z.string().length(DEFAULT_ID_SIZE) })
 export default defineEventHandler(async (event) => {

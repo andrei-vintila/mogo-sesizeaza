@@ -1,5 +1,5 @@
 import { consola } from 'consola'
-import * as tables from '~/server/database/schema'
+import * as tables from '@@/server/database/schema'
 
 export default defineTask({
   meta: {

@@ -1,5 +1,3 @@
-import { requireUserSession } from '~/server/utils/auth'
-
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
   const db = useDrizzle()

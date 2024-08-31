@@ -2,8 +2,6 @@ import process from 'node:process'
 import { consola } from 'consola'
 import { generateCodeVerifier, generateState } from 'arctic'
 import { z } from 'zod'
-import { googleAuth } from '~/server/utils/lucia-auth'
-import { requireUserSession } from '~/server/utils/auth'
 
 const googleUrlQueryParams = z.object({
   forcePrompt: z.string().optional(),

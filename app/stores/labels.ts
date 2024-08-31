@@ -1,8 +1,7 @@
-import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { z } from 'zod'
 import { generateId } from 'lucia'
-import { InsertLabelSchema } from '~/server/database/schema'
+import { InsertLabelSchema } from '@@/server/database/schema'
 
 const _LabelSchema = InsertLabelSchema.pick({
   id: true,

@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { InsertLabelSchema, labels } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { InsertLabelSchema, labels } from '@@/server/database/schema'
 // we create a zod schema that is an object that contains an array of InsertLabelSchema
 const createLabelSchema = z.object({
   labels: z.array(InsertLabelSchema).min(1),

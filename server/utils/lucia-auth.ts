@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { consola } from 'consola'
 import { Lucia } from 'lucia'
-import { GitHub, Google } from 'arctic'
+import { Facebook, GitHub, Google } from 'arctic'
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
 import type { H3Event } from 'h3'
 import * as tables from '../database/schema'
@@ -49,6 +49,15 @@ export function googleAuth(event: H3Event) {
     useRuntimeConfig(event).googleClientId,
     useRuntimeConfig(event).googleClientSecret,
     `${getRequestProtocol(event)}://${getRequestHost(event)}/api/auth/login/google/callback`,
+  )
+}
+
+export function facebookAuth(event: H3Event) {
+  consola.info(useRuntimeConfig(event))
+  return new Facebook(
+    useRuntimeConfig(event).facebookClientId,
+    useRuntimeConfig(event).facebookClientSecret,
+    `${getRequestProtocol(event)}://${getRequestHost(event)}/api/auth/login/facebook/callback`,
   )
 }
 

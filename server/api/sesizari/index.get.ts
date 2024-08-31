@@ -1,12 +1,11 @@
 import { z } from 'zod'
 import { and, asc, between, count, desc, eq, isNotNull, like, or } from 'drizzle-orm'
-import { SelectSesizareSchema, StatusEnumSchema, authUser, sesizare, sesizareVotes } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { StatusEnumSchema, authUser, sesizare, sesizareVotes } from '@@/server/database/schema'
 
 const querySchema = z.object({
   search: z.string().optional(),
-  limit: z.number().optional().default(25),
-  offset: z.number().optional().default(0),
+  limit: z.string().optional().default('25').transform(Number),
+  offset: z.string().optional().default('0').transform(Number),
   labels: z.string().optional(),
   status: StatusEnumSchema.optional(),
   reporter: z.string().optional(),
@@ -19,7 +18,6 @@ const querySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
   const db = useDrizzle()
 
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
@@ -58,10 +56,8 @@ export default defineEventHandler(async (event) => {
     .limit(query.limit)
     .offset(query.offset)
 
-  return result
-
-  // result.map((r) => {
-  //   r.reporterName = getInitials(r.reporterName)
-  //   return r
-  // })
+  return result.map((r) => {
+    r.reporterName = getInitials(r.reporterName || '')
+    return r
+  })
 })

@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { UpsertLabelSchema, labels } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { UpsertLabelSchema, labels } from '@@/server/database/schema'
 
 const createLabelBodySchema = UpsertLabelSchema.omit({
   id: true,

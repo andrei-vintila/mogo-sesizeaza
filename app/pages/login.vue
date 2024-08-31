@@ -36,9 +36,8 @@ const colorMode = useColorMode()
         padded
         block
       />
-      <!-- <UButton
+      <UButton
         label="Folosind Facebook"
-
         color="white"
         icon="i-mdi-facebook"
         size="lg"
@@ -47,7 +46,7 @@ const colorMode = useColorMode()
         external
         padded
         block
-      /> -->
+      />
     </div>
   </div>
 </template>

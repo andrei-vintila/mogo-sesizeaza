@@ -1,6 +1,5 @@
-import { eq } from 'drizzle-orm'
-import { UpsertSesizareSchema, sesizare } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { and, eq } from 'drizzle-orm'
+import { UpsertSesizareSchema, sesizare } from '@@/server/database/schema'
 
 const requestBodySchema = UpsertSesizareSchema.omit({ createdAt: true, updatedAt: true })
 export default defineEventHandler(async (event) => {
@@ -22,7 +21,16 @@ export default defineEventHandler(async (event) => {
     requestBodySchema.parse,
   )
   const db = useDrizzle()
-
+  // check if user is the reporter
+  const reporter = await db.query.sesizare.findFirst({
+    where: and(eq(sesizare.id, sesizareId), eq(sesizare.reporter, event.context.user.id)),
+  })
+  if (!reporter) {
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized',
+    })
+  }
   try {
     const response = await db.update(sesizare).set(sesizareBody).where(eq(sesizare.id, sesizareId))
     setResponseStatus(event, 200)

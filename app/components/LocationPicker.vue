@@ -9,6 +9,10 @@ const lng = defineModel('lng', { type: Number })
 
 const location = computed(() => ({ lat: lat.value, lng: lng.value }))
 const draftLocation = ref()
+
+onBeforeUnmount(() => {
+  pause()
+})
 // Check if the location is set on the model, if not, use the geolocation, fallback to default coords.
 const center = computed(() => {
   if (location.value.lat && location.value.lng)
@@ -26,7 +30,7 @@ const mapRef = ref()
 async function openMapDialog() {
   resume()
   showMap.value = true
-  pause()
+  // pause()
 }
 
 function confirmLocation() {
@@ -34,13 +38,13 @@ function confirmLocation() {
   // additional logic to handle location confirmation
   lat.value = draftLocation.value.lat
   lng.value = draftLocation.value.lng
+  pause()
 }
 
 async function changeLocation() {
   resume()
   showMap.value = true
   draftLocation.value = null
-  pause()
 }
 
 const staticMapUrl = computed(() => {

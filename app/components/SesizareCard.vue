@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { SesizareCard } from '~/types/sesizare'
+import type { SesizareCard } from '@@/types/sesizare'
 
 const props = defineProps({
   sesizare: {

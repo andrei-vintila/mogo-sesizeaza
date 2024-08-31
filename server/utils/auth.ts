@@ -1,17 +1,15 @@
 import { OAuth2RequestError } from 'arctic'
-import type { GitHubTokens, GoogleTokens } from 'arctic'
+import type { FacebookTokens, GitHubTokens, GoogleTokens } from 'arctic'
 import type { H3Event } from 'h3'
 import { isWithinExpirationDate } from 'oslo'
 import { and, eq } from 'drizzle-orm'
 import { verifyRequestOrigin } from 'oslo/request'
 import type { User } from 'lucia'
+import type { GitHubUser } from '@@/types/github'
+import type { GoogleUser } from '@@/types/gapi'
+import type { FacebookUser } from '@@/types/facebook'
 import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
 import { authUser, oAuthAccount } from '../database/schema'
-import * as tables from '../database/schema'
-import { googleAuth, useLucia } from './lucia-auth'
-import type { useDrizzle } from './db'
-import type { GitHubUser } from '@/types/github'
-import type { GoogleUser } from '@/types/gapi'
 
 type DB = ReturnType<typeof useDrizzle>
 export function upsertGithubOAuthAccount(db: DB, {
@@ -24,7 +22,7 @@ export function upsertGithubOAuthAccount(db: DB, {
   githubTokens: GitHubTokens
 }) {
   return db
-    .insert(tables.oAuthAccount)
+    .insert(oAuthAccount)
     .values({
       userId,
       providerId: 'github',
@@ -34,7 +32,7 @@ export function upsertGithubOAuthAccount(db: DB, {
       expiresAt: new Date(Date.now() + 60 * 60),
     })
     .onConflictDoUpdate({
-      target: [tables.oAuthAccount.userId, tables.oAuthAccount.providerId],
+      target: [oAuthAccount.userId, oAuthAccount.providerId],
       set: {
         accessToken: githubTokens.accessToken,
       },
@@ -51,7 +49,7 @@ export function upsertGoogleOAuthAccount(db: DB, {
   googleTokens: GoogleTokens
 }) {
   return db
-    .insert(tables.oAuthAccount)
+    .insert(oAuthAccount)
     .values({
       userId,
       providerId: 'google',
@@ -61,11 +59,38 @@ export function upsertGoogleOAuthAccount(db: DB, {
       expiresAt: googleTokens.accessTokenExpiresAt,
     })
     .onConflictDoUpdate({
-      target: [tables.oAuthAccount.userId, tables.oAuthAccount.providerId],
+      target: [oAuthAccount.userId, oAuthAccount.providerId],
       set: {
         accessToken: googleTokens.accessToken,
         refreshToken: googleTokens.refreshToken,
         expiresAt: googleTokens.accessTokenExpiresAt,
+      },
+    })
+}
+
+export function upsertFacebookOAuthAccount(db: DB, {
+  userId,
+  facebookUser,
+  facebookToken,
+}: {
+  userId: string
+  facebookUser: FacebookUser
+  facebookToken: FacebookTokens
+}) {
+  return db
+    .insert(oAuthAccount)
+    .values({
+      userId,
+      providerId: 'facebook',
+      providerUserId: facebookUser.id,
+      accessToken: facebookToken.accessToken,
+      expiresAt: facebookToken.accessTokenExpiresAt,
+    })
+    .onConflictDoUpdate({
+      target: [oAuthAccount.userId, oAuthAccount.providerId],
+      set: {
+        accessToken: facebookToken.accessToken,
+        expiresAt: facebookToken.accessTokenExpiresAt,
       },
     })
 }
@@ -78,7 +103,7 @@ export async function upsertAuthUser(db: DB, {
   fullName,
 }: UpsertUser) {
   const [user] = await db
-    .insert(tables.authUser)
+    .insert(authUser)
     .values({ id, email, githubUsername, profilePictureUrl, fullName })
     .onConflictDoUpdate({
       target: authUser.email,

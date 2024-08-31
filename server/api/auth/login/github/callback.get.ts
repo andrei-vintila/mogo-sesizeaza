@@ -1,10 +1,8 @@
 import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
-import { authUser, oAuthAccount } from '@/server/database/schema'
-import { requireUserSession, upsertAuthUser, upsertGithubOAuthAccount } from '~/server/utils/auth'
-import type { GitHubUser } from '~/types/github'
-import { githubAuth } from '~/server/utils/lucia-auth'
+import type { GitHubUser } from '@@/types/github'
+import { authUser, oAuthAccount } from '@@/server/database/schema'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { labels } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { labels } from '@@/server/database/schema'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

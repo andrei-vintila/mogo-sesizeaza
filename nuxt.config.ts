@@ -8,9 +8,7 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-
   modules: ['@nuxt/ui', '@vueuse/nuxt', '@pinia/nuxt', '@nuxthub/core', 'nuxt-posthog'],
-
   runtimeConfig: {
     public: {
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
@@ -20,16 +18,16 @@ export default defineNuxtConfig({
     githubClientSecret: '',
     googleClientId: '',
     googleClientSecret: '',
+    facebookClientId: '',
+    facebookClientSecret: '',
     dbDefaultIdSize: 25,
+
   },
   posthog: {
     publicKey: process.env.POSTHOG_PUBLIC_KEY,
     clientOptions: {
       ui_host: 'https://eu.posthog.com',
-      capture_pageleave: true,
-      capture_pageview: true,
     },
-    capturePageViews: false,
     host: `${process.env.BASE_URL || 'http://localhost:3000'}/ingest`,
   },
 
@@ -41,12 +39,15 @@ export default defineNuxtConfig({
     },
   },
   logLevel: 'verbose',
-  ssr: false,
+  ssr: true,
   hub: {
     database: true,
   },
 
   compatibilityDate: '2024-07-27',
+  future: {
+    compatibilityVersion: 4,
+  },
   routeRules: {
     '/ingest/static/**': { proxy: 'https://eu-assets.i.posthog.com/static/**' },
     '/ingest/**': { proxy: 'https://eu.i.posthog.com/**' },

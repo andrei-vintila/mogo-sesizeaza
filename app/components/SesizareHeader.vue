@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { intlFormat, intlFormatDistance } from 'date-fns'
-import type { SesizareCard } from '~/types/sesizare'
+import type { SesizareCard } from '@@/types/sesizare'
 
 defineProps({
   sesizare: {

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { CustomMarker, GoogleMap, MarkerCluster } from 'vue3-google-map'
-import { useSesizariStore } from '@/stores/sesizari'
-import type { SesizareCard } from '~/types/sesizare'
+import type { SesizareCard } from '@@/types/sesizare'
 
 const { googleMapsApiKey } = useRuntimeConfig().public
 const mapRef = ref()
@@ -50,7 +49,3 @@ function handleOpen(sesizareId: string) {
     </UModal>
   </div>
 </template>
-
-<style>
-
-</style>

@@ -1,21 +1,30 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useVirtualList } from '@vueuse/core'
+
+definePageMeta({
+  middleware: 'protected',
+})
+const { user } = useUser()
 // store initialization & fetching
 const labels = useLabelsStore()
-await labels.init()
+await callOnce(labels.init)
+
 const sesizariStore = useSesizariStore()
-await sesizariStore.fetchAll()
+await callOnce(async () => sesizariStore.fetchAll({ reporter: user.value?.id }))
 const { sesizari } = storeToRefs(sesizariStore)
 
 const { list, containerProps, wrapperProps } = useVirtualList(sesizari ?? [], {
   itemHeight: 181,
 })
-const sesizariViewState = useState('sesizariView', () => 'list')
+
+const sesizariViewState = useState('userSesizariView', () => 'list')
 </script>
 
 <template>
   <div class="">
     <div class="grid relative height-minus-header">
-      <BottomBar />
+      <BottomBar :map-toggle="false" />
       <div v-show="sesizariViewState === 'list'" v-bind="containerProps" class="height-minus-header py-1 flex-grow">
         <div v-bind="wrapperProps" class="">
           <div v-for="sesizare in list" :key="sesizare.index" class="px-2 py-1">
@@ -30,8 +39,8 @@ const sesizariViewState = useState('sesizariView', () => 'list')
   </div>
 </template>
 
-<style>
- .height-minus-header {
-   height: calc(100svh - 53px);
- }
+<style scoped>
+.height-minus-header {
+  height: calc(100svh - 53px);
+}
 </style>

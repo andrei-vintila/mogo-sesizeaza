@@ -1,101 +1,94 @@
 import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
-import type { GoogleUser } from '@@/types/gapi'
 import { authUser, oAuthAccount } from '@@/server/database/schema'
+import type { FacebookUser } from '@@/types/facebook'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
   const lucia = event.context.lucia
   const db = useDrizzle()
   const query = getQuery(event)
-  const forcePrompt = query.prompt === 'consent'
-  if (event.context.user && !forcePrompt)
+  if (event.context.user)
     return sendRedirect(event, '/')
 
-  const codeVerifier = getCookie(event, 'google_code_verifier')
-  const stateCookie = getCookie(event, 'google_state')
+  const stateCookie = getCookie(event, 'facebook_state')
   const code = query.code?.toString()
   const state = query.state?.toString()
   // validate state
   if (
-    !state
-    || !stateCookie
-    || stateCookie !== state
-    || !codeVerifier
-    || !code
+    !code || !stateCookie || state !== stateCookie
   ) {
     return sendError(
       event,
       createError({
         statusCode: 400,
+        message: 'Invalid request',
       }),
     )
   }
   try {
-    const googleTokens = await googleAuth(event).validateAuthorizationCode(
+    const facebookToken = await facebookAuth(event).validateAuthorizationCode(
       code,
-      codeVerifier,
     )
 
-    const googleUser = await $fetch<GoogleUser>(
-      'https://www.googleapis.com/oauth2/v3/userinfo',
-      { headers: { Authorization: `Bearer ${googleTokens.accessToken}` } },
+    const facebookUser = await $fetch<FacebookUser>(
+      'https://graph.facebook.com/me',
+      {
+        headers: { Authorization: `Bearer ${facebookToken.accessToken}` },
+        params: {
+          access_token: facebookToken.accessToken,
+          fields: 'id,name,email,picture',
+        },
+      },
     )
     const existingAccount = await db.query.oAuthAccount.findFirst({
       where: and(
-        eq(oAuthAccount.providerUserId, googleUser.sub),
-        eq(oAuthAccount.providerId, 'google'),
+        eq(oAuthAccount.providerUserId, facebookUser.id),
+        eq(oAuthAccount.providerId, 'facebook'),
       ),
     })
     const getUser = async () => {
       // now we check if the user has an email in his google account to see if we can find an existing user
-      if (!googleUser.email_verified || !googleUser.email)
-        throw new Error('Email not verified')
+      if (!facebookUser.email)
+        throw new Error('Email not verified or not set')
 
       const existingUserWithEmail = await db.query.authUser.findFirst({
         columns: { id: true },
-        where: eq(authUser.email, googleUser.email),
+        where: eq(authUser.email, facebookUser.email),
       })
       if (existingAccount) {
         await upsertAuthUser(db, {
           id: existingAccount.userId,
-          profilePictureUrl: googleUser.picture,
-          fullName: googleUser.name,
-          email: googleUser.email,
+          profilePictureUrl: facebookUser.picture.data.url,
+          fullName: facebookUser.name,
+          email: facebookUser.email,
           githubUsername: null,
           updatedAt: new Date(),
         })
-        if (forcePrompt) {
-          await upsertGoogleOAuthAccount(db, {
-            userId: existingAccount.userId,
-            googleUser,
-            googleTokens,
-          })
-        }
         return existingAccount.userId
       }
       if (existingUserWithEmail) {
-        await upsertGoogleOAuthAccount(db, {
+        await upsertFacebookOAuthAccount(db, {
           userId: existingUserWithEmail.id,
-          googleUser,
-          googleTokens,
+          facebookUser,
+          facebookToken,
         })
         return existingUserWithEmail.id
       }
 
       const user = await upsertAuthUser(db, {
         id: generateId(25),
-        profilePictureUrl: googleUser.picture,
-        fullName: googleUser.name,
-        email: googleUser.email,
+        profilePictureUrl: facebookUser.picture.data.url,
+        fullName: facebookUser.name,
+        email: facebookUser.email,
         githubUsername: null,
         updatedAt: new Date(),
       })
-      await upsertGoogleOAuthAccount(db, {
+      await upsertFacebookOAuthAccount(db, {
         userId: user.id,
-        googleUser,
-        googleTokens,
+        facebookUser,
+        facebookToken,
       })
       return user.id
     }

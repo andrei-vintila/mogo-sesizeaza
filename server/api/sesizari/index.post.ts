@@ -1,7 +1,5 @@
 import { generateId } from 'lucia'
-import type { InsertSesizare } from '~/server/database/schema'
-import { DEFAULT_ID_SIZE, InsertSesizareSchema, sesizare, sesizareVotes } from '~/server/database/schema'
-import { requireUserSession } from '~/server/utils/auth'
+import { DEFAULT_ID_SIZE, InsertSesizareSchema, sesizare, sesizareVotes } from '@@/server/database/schema'
 
 const requestBodySchema = InsertSesizareSchema.omit({ createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {

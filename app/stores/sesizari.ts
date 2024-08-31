@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { generateId } from 'lucia'
 import { FetchError } from 'ofetch'
-import type { SesizareCard } from '~/types/sesizare'
-import type { InsertSesizare, SelectSesizare, UpsertSesizare } from '~/server/database/schema'
-import { StatusEnumSchema } from '~/server/database/schema'
+import type { SesizareCard } from '@@/types/sesizare'
+import type { InsertSesizare, UpsertSesizare } from '@@/server/database/schema'
+import { StatusEnumSchema } from '@@/server/database/schema'
 
 export const useSesizariStore = defineStore('sesizari', () => {
   const toast = useToast()
@@ -15,8 +15,8 @@ export const useSesizariStore = defineStore('sesizari', () => {
 
   const sesizari = computed(() => Array.from(sesizariMap.value.values()))
 
-  const fetchAll = async () => {
-    const data = await $fetch('/api/sesizari')
+  const fetchAll = async (query: { reporter?: string } = {}) => {
+    const data = await $fetch('/api/sesizari', { query: { ...query, limit: 100 } })
     if (data !== null) {
       sesizariMap.value = new Map(data.map(sesizare => [
         sesizare.id,
