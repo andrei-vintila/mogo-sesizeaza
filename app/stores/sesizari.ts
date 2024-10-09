@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
+import type { InsertSesizare, UpsertSesizare } from '@@/server/database/schema'
+import type { SesizareCard } from '@@/types/sesizare'
+import { StatusEnumSchema } from '@@/server/database/schema'
 import { generateId } from 'lucia'
 import { FetchError } from 'ofetch'
-import type { SesizareCard } from '@@/types/sesizare'
-import type { InsertSesizare, UpsertSesizare } from '@@/server/database/schema'
-import { StatusEnumSchema } from '@@/server/database/schema'
+import { defineStore } from 'pinia'
 
 export const useSesizariStore = defineStore('sesizari', () => {
   const toast = useToast()
@@ -63,8 +63,7 @@ export const useSesizariStore = defineStore('sesizari', () => {
         id: 'add-sesizare-error',
         title: 'Nu s-a putut adăuga sesizarea',
         description: 'Trebuie să fii autentificat pentru a putea adauga o sesizare',
-        actions: [{ label: 'Loghează-te', click: () => useRouter().push('/login') }],
-        timeout: 5000,
+        actions: [{ label: 'Loghează-te', onClick: () => { useRouter().push('/login') } }],
         color: 'red',
         icon: 'i-heroicons-exclamation-circle',
       })

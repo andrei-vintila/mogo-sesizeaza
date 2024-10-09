@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
 import { generateId } from 'lucia'
 import { z } from 'zod'
-import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
 
 const { user } = useUser()
 const sesizariStore = useSesizariStore()
@@ -62,7 +62,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
 }
 async function onError(event: FormErrorEvent) {
-  const element = document.getElementById(event.errors[0].id)
+  const element = document.getElementById(event.errors[0]?.id || '')
   element?.focus()
   element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
@@ -70,7 +70,7 @@ async function onError(event: FormErrorEvent) {
 
 <template>
   <div class="mt-2 flex flex-col gap-2">
-    <UBreadcrumb :links="breadcrumbs" />
+    <UBreadcrumb :items="breadcrumbs" />
     <UCard class="overflow-hidden border border-gray-100 dark:border-gray-800 sm:rounded-lg">
       <template #header>
         <div class="flex justify-between">
@@ -81,18 +81,21 @@ async function onError(event: FormErrorEvent) {
       </template>
 
       <UForm :state="draftSesizare" :schema="schema" class="space-y-4" @submit="onSubmit" @error="onError">
-        <UFormGroup label="Titlu" name="title" required>
+        <UFormField label="Titlu" name="title" required>
           <UInput v-model="draftSesizare.title" />
-        </UFormGroup>
-        <UFormGroup label="Descriere" name="description">
-          <UTextarea v-model="draftSesizare.description" />
-        </UFormGroup>
-        <UFormGroup label="Locație" name="location">
-          <LocationPicker v-model:lng="draftSesizare.lng" v-model:lat="draftSesizare.lat" />
-        </UFormGroup>
-        <UFormGroup label="Etichete" name="labels">
+        </UFormField>
+        <UFormField label="Descriere" name="description">
+          <UTextarea v-model="draftSesizare.description" :rows="4" autoresize class="w-full" />
+        </UFormField>
+        <UFormField label="Locație" name="location">
+          <LocationPicker
+            v-model:lng="draftSesizare.lng"
+            v-model:lat="draftSesizare.lat"
+          />
+        </UFormField>
+        <UFormField label="Etichete" name="labels">
           <LabelInput v-model:sesizare-labels="draftSesizare.labels" :sesizare-id="draftSesizare.id" />
-        </UFormGroup>
+        </UFormField>
         <UButton type="submit" label="Adaugă sesizarea" :icon="!user?.id ? 'i-heroicons-lock-closed' : ''" />
       </UForm>
     </UCard>

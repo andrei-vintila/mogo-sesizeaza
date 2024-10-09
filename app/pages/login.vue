@@ -27,25 +27,27 @@ const colorMode = useColorMode()
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px] flex flex-col gap-2">
       <UButton
         label="Folosind Google"
-        color="white"
+        color="gray"
+        variant="outline"
         icon="i-mdi-google"
         size="lg"
         trailing
         to="/api/auth/login/google"
         external
         padded
-        block
+        class="justify-center"
       />
       <UButton
         label="Folosind Facebook"
-        color="white"
+        color="gray"
+        variant="outline"
         icon="i-mdi-facebook"
         size="lg"
         trailing
         to="/api/auth/login/facebook"
         external
         padded
-        block
+        class="justify-center"
       />
     </div>
   </div>

@@ -13,7 +13,7 @@ const breadcrumbs = [
 
 <template>
   <div v-if="sesizare" class="mt-2 flex flex-col gap-2">
-    <UBreadcrumb :links="breadcrumbs" />
+    <UBreadcrumb :items="breadcrumbs" />
     <SesizareCard :sesizare="sesizare" />
   </div>
 </template>

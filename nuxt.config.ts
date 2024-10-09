@@ -8,7 +8,19 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  modules: ['@nuxt/ui', '@vueuse/nuxt', '@pinia/nuxt', '@nuxthub/core', 'nuxt-posthog'],
+  app: {
+    rootAttrs: {
+      class: 'bg-[--background]',
+    },
+  },
+  modules: [
+    '@nuxt/ui',
+    '@vueuse/nuxt',
+    '@pinia/nuxt',
+    '@nuxthub/core',
+    'nuxt-posthog',
+    'nuxt-auth-utils',
+  ],
   runtimeConfig: {
     public: {
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
@@ -42,6 +54,7 @@ export default defineNuxtConfig({
   ssr: true,
   hub: {
     database: true,
+    blob: true,
   },
 
   compatibilityDate: '2024-07-27',

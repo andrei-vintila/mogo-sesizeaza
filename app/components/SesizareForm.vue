@@ -35,7 +35,7 @@ function onSubmit(event: FormSubmitEvent<Schema>) {
 }
 
 function onError(event: FormErrorEvent) {
-  const element = document.getElementById(event.errors[0].id)
+  const element = document.getElementById(event.errors[0]?.id || '')
   element?.focus()
   element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
@@ -53,18 +53,18 @@ function onError(event: FormErrorEvent) {
     </template>
 
     <UForm :state="initialData" :schema="schema" class="space-y-4" @submit="onSubmit" @error="onError">
-      <UFormGroup label="Titlu" name="title" required>
+      <UFormField label="Titlu" name="title" required>
         <UInput v-model="initialData.title" />
-      </UFormGroup>
-      <UFormGroup label="Descriere" name="description">
+      </UFormField>
+      <UFormField label="Descriere" name="description">
         <UTextarea v-model="initialData.description" />
-      </UFormGroup>
-      <UFormGroup label="Locație" name="location">
+      </UFormField>
+      <UFormField label="Locație" name="location">
         <LocationPicker v-model:lng="initialData.longitude" v-model:lat="initialData.latitude" />
-      </UFormGroup>
-      <UFormGroup label="Etichete" name="labels">
+      </UFormField>
+      <UFormField label="Etichete" name="labels">
         <LabelInput v-model:sesizare-labels="initialData.labels" :sesizare-id="initialData.id" />
-      </UFormGroup>
+      </UFormField>
       <UButton
         type="submit" :label="isEditing ? 'Actualizează sesizarea' : 'Adaugă sesizarea'"
         :icon="!user?.id ? 'i-heroicons-lock-closed' : ''" :variant="!user?.id ? 'outline' : 'solid'"

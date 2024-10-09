@@ -1,9 +1,7 @@
 <script setup lang="ts">
-const { mapToggle } = withDefaults(defineProps<{
+const { mapToggle = true } = defineProps<{
   mapToggle?: boolean
-}>(), {
-  mapToggle: true,
-})
+}>()
 const sesizariViewState = useState('sesizariView')
 const { user } = useUser()
 
@@ -22,12 +20,12 @@ function handleToggleMap() {
     >
       <UButton
         v-if="mapToggle" variant="ghost" color="gray" size="lg" :icon="toggleIcon" :label="toggleLabel"
-        :ui="{ rounded: 'rounded-full' }" @click="handleToggleMap"
+        class="rounded-full" @click="handleToggleMap"
       />
-      <UButton to="/sesizare/" color="black" size="lg" label="Adauga sesizare" :ui="{ rounded: 'rounded-full' }" />
+      <UButton to="/sesizare/" color="gray" size="lg" label="Adauga sesizare" class="rounded-full" />
       <UButton
         v-if="user" to="/me/sesizari" variant="ghost" size="lg" label="Sesizarile mele"
-        :ui="{ rounded: 'rounded-full' }"
+        class="rounded-full"
       />
     </div>
   </div>

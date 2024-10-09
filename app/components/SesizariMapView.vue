@@ -44,7 +44,7 @@ function handleOpen(sesizareId: string) {
         </CustomMarker>
       </MarkerCluster>
     </GoogleMap>
-    <UModal v-model="isOpen">
+    <UModal v-model:open="isOpen">
       <SesizareCard :sesizare="selectedSesizare!" />
     </UModal>
   </div>

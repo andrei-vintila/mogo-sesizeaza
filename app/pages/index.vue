@@ -25,7 +25,7 @@ const sesizariViewState = useState('sesizariView', () => 'list')
       </div>
     </div>
     <div v-show="sesizariViewState === 'map'" class="absolute top-[59px] inset-2 rounded-xl">
-      <SesizariMapView class="h-full" />
+      <!-- <SesizariMapView class="h-full" /> -->
     </div>
   </div>
 </template>

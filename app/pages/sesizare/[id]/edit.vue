@@ -59,7 +59,7 @@ async function handleSubmit(formData: Schema) {
 
 <template>
   <div class="mt-2 flex flex-col gap-2">
-    <UBreadcrumb :links="breadcrumbs" />
+    <UBreadcrumb :items="breadcrumbs" />
     <SesizareForm v-if="sesizare" v-model:initial-data="sesizare" :is-editing="true" @submit="handleSubmit" />
   </div>
 </template>

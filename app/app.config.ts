@@ -2,21 +2,16 @@ export default defineAppConfig({
   ui: {
     primary: 'emerald',
     container: {
-      constrained: 'max-w-2xl',
+      base: 'max-w-3xl',
     },
     button: {
-      rounded: 'rounded-full',
-    },
-    card: {
-
-      body: {
-        base: 'space-y-4',
+      slots: {
+        base: ['rounded-full'],
       },
     },
-    dropdown: {
-      width: 'w-full',
-      popper: {
-        strategy: 'absolute',
+    input: {
+      slots: {
+        root: ['w-full'],
       },
     },
   },

@@ -16,11 +16,17 @@ useHead({
 </script>
 
 <template>
-  <NuxtLoadingIndicator />
-  <UContainer>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </UContainer>
-  <UNotifications />
+  <UApp>
+    <NuxtLoadingIndicator />
+    <UContainer>
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </UContainer>
+  </UApp>
 </template>
+
+<style>
+@import "tailwindcss";
+@import "@nuxt/ui";
+</style>
