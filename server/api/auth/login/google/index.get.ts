@@ -1,6 +1,6 @@
 import process from 'node:process'
-import { consola } from 'consola'
 import { generateCodeVerifier, generateState } from 'arctic'
+import { consola } from 'consola'
 import { z } from 'zod'
 
 const googleUrlQueryParams = z.object({

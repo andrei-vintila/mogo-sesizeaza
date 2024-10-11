@@ -19,10 +19,10 @@ function handleToggleMap() {
       class="backdrop-blur-sm p-2 min-w-[50%] flex space-x-2 justify-center rounded-full dark:border-white/30 border-black/30 border-[0.5px]"
     >
       <UButton
-        v-if="mapToggle" variant="ghost" color="gray" size="lg" :icon="toggleIcon" :label="toggleLabel"
+        v-if="mapToggle" variant="ghost" color="neutral" size="lg" :icon="toggleIcon" :label="toggleLabel"
         class="rounded-full" @click="handleToggleMap"
       />
-      <UButton to="/sesizare/" color="gray" size="lg" label="Adauga sesizare" class="rounded-full" />
+      <UButton to="/sesizare/" color="neutral" size="lg" label="Adauga sesizare" class="rounded-full" />
       <UButton
         v-if="user" to="/me/sesizari" variant="ghost" size="lg" label="Sesizarile mele"
         class="rounded-full"

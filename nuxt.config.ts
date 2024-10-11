@@ -8,11 +8,6 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  app: {
-    rootAttrs: {
-      class: 'bg-[--background]',
-    },
-  },
   modules: [
     '@nuxt/ui',
     '@vueuse/nuxt',

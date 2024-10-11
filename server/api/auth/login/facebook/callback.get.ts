@@ -1,8 +1,8 @@
+import type { FacebookUser } from '@@/types/facebook'
+import { authUser, oAuthAccount } from '@@/server/database/schema'
 import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
-import { authUser, oAuthAccount } from '@@/server/database/schema'
-import type { FacebookUser } from '@@/types/facebook'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

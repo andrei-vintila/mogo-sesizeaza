@@ -1,9 +1,8 @@
-import process from 'node:process'
+import type { H3Event } from 'h3'
+import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
+import { Facebook, GitHub, Google } from 'arctic'
 import { consola } from 'consola'
 import { Lucia } from 'lucia'
-import { Facebook, GitHub, Google } from 'arctic'
-import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle'
-import type { H3Event } from 'h3'
 import * as tables from '../database/schema'
 import { useDrizzle } from './db'
 

@@ -1,5 +1,5 @@
-import { consola } from 'consola'
 import { generateState } from 'arctic'
+import { consola } from 'consola'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

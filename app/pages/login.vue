@@ -27,7 +27,7 @@ const colorMode = useColorMode()
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px] flex flex-col gap-2">
       <UButton
         label="Folosind Google"
-        color="gray"
+        color="neutral"
         variant="outline"
         icon="i-mdi-google"
         size="lg"
@@ -39,7 +39,7 @@ const colorMode = useColorMode()
       />
       <UButton
         label="Folosind Facebook"
-        color="gray"
+        color="neutral"
         variant="outline"
         icon="i-mdi-facebook"
         size="lg"

@@ -1,8 +1,8 @@
+import type { GitHubUser } from '@@/types/github'
+import { authUser, oAuthAccount } from '@@/server/database/schema'
 import { OAuth2RequestError } from 'arctic'
 import { and, eq } from 'drizzle-orm'
 import { generateId } from 'lucia'
-import type { GitHubUser } from '@@/types/github'
-import { authUser, oAuthAccount } from '@@/server/database/schema'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

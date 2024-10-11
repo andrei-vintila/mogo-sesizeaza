@@ -1,6 +1,7 @@
 {
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@9.0.1",
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
@@ -12,18 +13,17 @@
   },
   "dependencies": {
     "@formkit/tempo": "^0.1.2",
-    "@iconify-json/mdi": "^1.2.0",
-    "@iconify-json/simple-icons": "^1.2.5",
+    "@iconify-json/mdi": "^1.2.1",
+    "@iconify-json/simple-icons": "^1.2.7",
     "@lucia-auth/adapter-drizzle": "^1.1.0",
-    "@nuxt/ui": "3.0.0-alpha.5",
     "@pinia/nuxt": "^0.5.5",
     "@vueuse/nuxt": "11.1.0",
     "arctic": "1.9.2",
-    "drizzle-kit": "^0.24.2",
-    "drizzle-orm": "^0.33.0",
+    "drizzle-kit": "^0.25.0",
+    "drizzle-orm": "^0.34.1",
     "drizzle-zod": "^0.5.1",
     "h3-zod": "^0.5.3",
-    "lucia": "^3.2.0",
+    "lucia": "^3.2.1",
     "oslo": "^1.2.1",
     "vue3-google-map": "^0.21.0",
     "zod": "^3.23.8"
@@ -33,7 +33,8 @@
     "@cloudflare/workers-types": "4.20241004.0",
     "@nuxt/devtools": "^1.5.2",
     "@nuxt/eslint-config": "^0.5.7",
-    "@nuxthub/core": "^0.7.24",
+    "@nuxt/ui": "3.0.0-alpha.6",
+    "@nuxthub/core": "^0.7.26",
     "@types/better-sqlite3": "^7.6.11",
     "@types/google.maps": "^3.58.1",
     "date-fns": "^4.1.0",
@@ -41,8 +42,7 @@
     "nuxt": "3.13.2",
     "nuxt-auth-utils": "^0.4.4",
     "nuxt-posthog": "^1.5.4",
-    "typescript": "5.6.2",
-    "wrangler": "^3.80.0"
-  },
-  "packageManager": "pnpm@8.13.1+sha1.90f9b2bb3ed58632bcb7b13c3902d6873ee9501c"
+    "typescript": "5.6.3",
+    "wrangler": "^3.80.2"
+  }
 }

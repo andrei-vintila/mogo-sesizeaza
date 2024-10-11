@@ -38,14 +38,14 @@ const userLinks = [
         </NuxtLink>
       </div>
       <UButton
-        color="gray" variant="ghost" size="xl" icon="i-heroicons-bars-3" class="md:hidden"
+        color="neutral" variant="ghost" size="xl" icon="i-heroicons-bars-3" class="md:hidden"
         @click="mobileMenuOpen = true"
       />
       <div
         class="hidden md:flex md:gap-x-4 px-2 py-1.5 rounded-full dark:border-white/30 border-black/30 border-[0.5px]"
       >
         <UButton
-          v-for="item in publicLinks" :key="item.to" active-class="text-primary" variant="ghost" color="gray" class="rounded-full"
+          v-for="item in publicLinks" :key="item.to" active-class="text-primary" variant="ghost" color="neutral" class="rounded-full"
           :title="item.label" :to="item.to"
         >
           {{ item.label }}
@@ -54,20 +54,20 @@ const userLinks = [
       <div class="hidden md:flex md:flex-1 md:justify-end space-x-2">
         <UButton
           :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'" variant="ghost"
-          color="gray" size="lg" class="rounded-full" @click="toggleColorMode"
+          color="neutral" size="lg" class="rounded-full" @click="toggleColorMode"
         />
         <UButton v-if="!user" size="lg" to="/login" variant="ghost" label="Log in" class="rounded-full" />
         <UPopover v-else>
-          <UButton variant="ghost" square color="gray">
+          <UButton variant="ghost" square color="neutral">
             <UAvatar :src="user.profilePictureUrl" :alt="user.fullName" />
           </UButton>
           <template #panel>
             <div class="flex flex-col space-y-2 p-2">
               <UButton
-                v-for="item in userLinks" :key="item.label" :to="item.to" variant="ghost" color="gray" size="lg"
+                v-for="item in userLinks" :key="item.label" :to="item.to" variant="ghost" color="neutral" size="lg"
                 :label="item.label"
               />
-              <UButton label="Delogare" color="gray" size="lg" variant="ghost" @click="logout" />
+              <UButton label="Delogare" color="neutral" size="lg" variant="ghost" @click="logout" />
             </div>
           </template>
         </UPopover>
@@ -81,11 +81,11 @@ const userLinks = [
               class="h-10
              w-auto" :src="colorMode.value === 'dark' ? '/logo-wide-dark.svg' : '/logo-wide.svg'" alt=""
             >
-            <UButton variant="ghost" color="gray" size="lg" icon="i-heroicons-x-mark" @click="mobileMenuOpen = false" />
+            <UButton variant="ghost" color="neutral" size="lg" icon="i-heroicons-x-mark" @click="mobileMenuOpen = false" />
           </template>
           <div class="flex flex-col space-y-2 h-full">
             <UButton
-              v-for="item in publicLinks" :key="item.label" :label="item.label" color="gray" size="lg"
+              v-for="item in publicLinks" :key="item.label" :label="item.label" color="neutral" size="lg"
               variant="ghost" :to="item.to" class="-ml-3"
             />
             <UButton v-if="!user" label="Log in" to="/login" variant="ghost" size="lg" class="-ml-3" />
@@ -97,10 +97,10 @@ const userLinks = [
                 </div>
               </div>
               <UButton
-                v-for="item in userLinks" :key="item.label" :label="item.label" color="gray" size="lg"
+                v-for="item in userLinks" :key="item.label" :label="item.label" color="neutral" size="lg"
                 variant="ghost" :to="item.to" class="-ml-3"
               />
-              <UButton label="Delogare" color="gray" size="lg" variant="ghost" class="-ml-3" @click="logout" />
+              <UButton label="Delogare" color="neutral" size="lg" variant="ghost" class="-ml-3" @click="logout" />
             </div>
           </div>
         </UCard>

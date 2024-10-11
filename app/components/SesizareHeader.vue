@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { intlFormat, intlFormatDistance } from 'date-fns'
 import type { SesizareCard } from '@@/types/sesizare'
+import { intlFormat, intlFormatDistance } from 'date-fns'
 
 defineProps({
   sesizare: {
@@ -25,7 +25,7 @@ const { user } = useUser()
           <h2 class="md:text-lg text-md font-semibold leading-6 ">
             <ULink
               v-if="!isSingleView" :to="`/sesizare/${sesizare.id}`"
-              class="truncate overflow-ellipsis underline hover:text-primary"
+              class="truncate overflow-ellipsis underline hover:text-primary-400"
             >
               {{ sesizare.title }}
             </ULink>
@@ -37,20 +37,20 @@ const { user } = useUser()
         <VoteButton :id="sesizare.id" :votes="sesizare.votes" :voted="Boolean(sesizare.voted)" />
         <UButton
           v-if="user?.id === sesizare.reporter && isSingleView" label="Editează" :to="`/sesizare/${sesizare.id}/edit`"
-          variant="ghost" color="gray" icon="i-heroicons-pencil" size="xs"
+          variant="ghost" color="neutral" icon="i-heroicons-pencil" size="xs"
         />
       </div>
     </div>
 
-    <div class="inline-flex items-center  gap-x-2">
+    <div class="inline-flex items-center gap-x-1">
       <UTooltip
         :text="intlFormat(sesizare.createdAt, {
           dateStyle: 'long',
           timeStyle: 'short',
         }, { locale: 'ro' })"
       >
-        <span class="text-sm text-gray-500 dark:text-gray-300 pr-1">Creat</span>
-        <time class="text-sm text-gray-500 dark:text-gray-300"> {{ intlFormatDistance(sesizare.createdAt, new
+        <span class="text-sm text-gray-500 dark:text-gray-300">Creat</span>
+        <time class="text-sm text-gray-500 dark:text-gray-300">{{ intlFormatDistance(sesizare.createdAt, new
           Date(), { locale: 'ro' }) }}</time>
       </UTooltip>
       <svg viewBox="0 0 2 2" class="h-1 w-1 fill-gray-500 dark:fill-gray-300">

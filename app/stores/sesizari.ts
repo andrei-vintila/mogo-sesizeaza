@@ -64,7 +64,7 @@ export const useSesizariStore = defineStore('sesizari', () => {
         title: 'Nu s-a putut adăuga sesizarea',
         description: 'Trebuie să fii autentificat pentru a putea adauga o sesizare',
         actions: [{ label: 'Loghează-te', onClick: () => { useRouter().push('/login') } }],
-        color: 'red',
+        color: 'error',
         icon: 'i-heroicons-exclamation-circle',
       })
       return createError('Nu s-a putut adăuga sesizarea')
@@ -96,8 +96,7 @@ export const useSesizariStore = defineStore('sesizari', () => {
         title: 'Sesizarea nu s-a putut adăuga.',
         description:
           (error instanceof Error ? error.message : 'Nu s-a putut adăuga sesizarea'),
-        timeout: 5000,
-        color: 'red',
+        color: 'error',
         icon: 'i-heroicons-exclamation-circle',
       })
       return createError(
@@ -130,8 +129,8 @@ export const useSesizariStore = defineStore('sesizari', () => {
         title: 'Sesizarea nu s-a putut actualizat.',
         description:
           (error instanceof Error ? error.message : 'Nu s-a putut actualizat sesizarea'),
-        timeout: 5000,
-        color: 'red',
+
+        color: 'error',
         icon: 'i-heroicons-exclamation-circle',
       })
       if (error instanceof Error)
@@ -172,9 +171,9 @@ export const useSesizariStore = defineStore('sesizari', () => {
       sesizare.voted = voted
       sesizariMap.value.set(sesizareId, sesizare)
       if (error instanceof FetchError && error.response?.status === 401)
-        useToast().add({ title: 'Nu ești logat!', description: 'Creează un cont sau loghează-te pentru a putea vota.', color: 'red', actions: [{ label: 'Loghează-te', click: () => useRouter().push('/login') }] })
+        useToast().add({ title: 'Nu ești logat!', description: 'Creează un cont sau loghează-te pentru a putea vota.', color: 'error', actions: [{ label: 'Loghează-te', onClick: () => { useRouter().push('/login') } }] })
       else
-        useToast().add({ title: 'Eroare', description: 'Nu am putut înregistra votul', color: 'red' })
+        useToast().add({ title: 'Eroare', description: 'Nu am putut înregistra votul', color: 'error' })
     }
   }
 

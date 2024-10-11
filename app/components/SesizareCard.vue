@@ -39,13 +39,17 @@ const isSingleView = route.path === `/sesizare/${props.sesizare.id}`
         <dt class="text-sm font-medium mb-1 ">
           Locatie
         </dt>
-        <dd class="mt-1 text-sm leading-6  sm:col-span-2 sm:mt-0 relative group tab-index-0">
-          <LocationViewer :static-map-url="getStaticMapUrl(sesizare.latitude, sesizare.longitude, 16) " />
+        <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0 relative group" tabindex="0">
+          <LocationViewer
+            :latitude="sesizare.latitude"
+            :longitude="sesizare.longitude"
+            :zoom="16"
+          />
           <UButton
             class="absolute bottom-2 left-1/2 transform -translate-x-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
             label="Vezi pe Google Maps" target="_blank"
             :to="`https://www.google.com/maps/search/?api=1&query=${sesizare.latitude},${sesizare.longitude}`"
-            rel="noopener noreferrer" color="gray" icon="i-heroicons-arrow-top-right-on-square"
+            rel="noopener noreferrer" color="neutral" icon="i-heroicons-arrow-top-right-on-square"
           />
         </dd>
       </div>
