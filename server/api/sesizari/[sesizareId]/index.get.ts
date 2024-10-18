@@ -1,12 +1,12 @@
+import { authUser, DEFAULT_ID_SIZE, sesizare, sesizareVotes } from '@@/server/database/schema'
 import { count, eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { DEFAULT_ID_SIZE, authUser, sesizare, sesizareVotes } from '@@/server/database/schema'
 
 const idSchema = z.object({ sesizareId: z.string().length(DEFAULT_ID_SIZE) })
 
 export default defineEventHandler(async (event) => {
   const { sesizareId } = await getValidatedRouterParams(event, params => idSchema.parse(params))
-
+  const { user } = await getUserSession(event)
   const db = useDrizzle()
   const result = await db.select({
     id: sesizare.id,
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     latitude: sesizare.latitude,
     reporterName: authUser.fullName ?? '',
     votes: count(sesizareVotes.voterId),
-    voted: eq(sesizareVotes.voterId, event.context.user?.id || ''),
+    voted: eq(sesizareVotes.voterId, user?.id || ''),
   })
     .from(sesizare)
     .leftJoin(authUser, eq(sesizare.reporter, authUser.id))

@@ -1,5 +1,4 @@
-export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
+export default defineEventHandler(async () => {
   const db = useDrizzle()
   // fetch user settings from db
   try {

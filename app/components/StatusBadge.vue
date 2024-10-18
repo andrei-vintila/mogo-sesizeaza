@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { z } from 'zod'
 import type { StatusEnumSchema } from '@@/server/database/schema'
+import type { z } from 'zod'
 
 const { status } = defineProps<{
   status: z.infer<typeof StatusEnumSchema>

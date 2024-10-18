@@ -8,7 +8,7 @@ import { defineStore } from 'pinia'
 export const useSesizariStore = defineStore('sesizari', () => {
   const toast = useToast()
   const { idToLabels } = useLabelsStore()
-  const { user } = useUser()
+  const { user, loggedIn } = useUser()
 
   const sesizariMap = ref(new Map<string, SesizareCard>())
   const votedSesizariSet = ref(new Set<string>())
@@ -16,21 +16,19 @@ export const useSesizariStore = defineStore('sesizari', () => {
   const sesizari = computed(() => Array.from(sesizariMap.value.values()))
 
   const fetchAll = async (query: { reporter?: string } = {}) => {
-    const data = await $fetch('/api/sesizari', { query: { ...query, limit: 100 } })
-    if (data !== null) {
-      sesizariMap.value = new Map(data.map(sesizare => [
-        sesizare.id,
-        {
-          ...sesizare,
-          voted: Boolean(sesizare.voted),
-          createdAt: new Date(sesizare.createdAt),
-          updatedAt: new Date(sesizare.updatedAt),
-          labels: idToLabels(sesizare.labels ?? []),
-          reporterName: sesizare.reporterName ?? '',
-        },
-      ]))
-      votedSesizariSet.value = new Set(data.filter(s => s.voted).map(s => s.id))
-    }
+    const { data } = await useFetch('/api/sesizari', { key: 'sesizari', query: { ...query, limit: 100 } })
+    sesizariMap.value = new Map(data.value?.map(sesizare => [
+      sesizare.id,
+      {
+        ...sesizare,
+        createdAt: new Date(sesizare.createdAt),
+        updatedAt: new Date(sesizare.updatedAt),
+        voted: Boolean(sesizare.voted),
+        labels: idToLabels(sesizare.labels ?? []),
+        reporterName: sesizare.reporterName ?? '',
+      },
+    ]) ?? [])
+    votedSesizariSet.value = new Set(data.value?.filter(s => s.voted).map(s => s.id) ?? [])
   }
 
   const getSesizariWithinBounds = async (bounds: google.maps.LatLngBounds) => {
@@ -72,8 +70,6 @@ export const useSesizariStore = defineStore('sesizari', () => {
     const newSesizare: InsertSesizare = {
       ...insertSesizare,
       id: generateId(25),
-      createdAt: new Date(),
-      updatedAt: new Date(),
       reporter: user.value.id,
       labels: insertSesizare.labels.map(label => label.id),
       description: insertSesizare.description || '',

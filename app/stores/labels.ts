@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
 import type { z } from 'zod'
-import { generateId } from 'lucia'
 import { InsertLabelSchema } from '@@/server/database/schema'
+import { generateId } from 'lucia'
+import { defineStore } from 'pinia'
 
 const _LabelSchema = InsertLabelSchema.pick({
   id: true,
@@ -18,9 +18,9 @@ export const useLabelsStore = defineStore('labels', () => {
   const labelsSet = new Set<Label>()
 
   const init = async () => {
-    const data = await $fetch<Label[]>('/api/label')
+    const { data } = await useFetch<Label[]>('/api/label', { key: 'labels' })
     labelsSet.clear()
-    data.forEach(label => labelsSet.add(label))
+    data.value?.forEach(label => labelsSet.add(label))
   }
 
   const add = async (newLabels: AddLabel[]): Promise<Label[]> => {

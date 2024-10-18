@@ -1,14 +1,10 @@
+import { sesizare, UpsertSesizareSchema } from '@@/server/database/schema'
 import { and, eq } from 'drizzle-orm'
-import { UpsertSesizareSchema, sesizare } from '@@/server/database/schema'
 
 const requestBodySchema = UpsertSesizareSchema.omit({ createdAt: true, updatedAt: true })
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-    })
-  }
+  const { user } = await requireUserSession(event)
+
   const sesizareId = event.context.params?.sesizareId
   if (!sesizareId) {
     throw createError({
@@ -23,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const db = useDrizzle()
   // check if user is the reporter
   const reporter = await db.query.sesizare.findFirst({
-    where: and(eq(sesizare.id, sesizareId), eq(sesizare.reporter, event.context.user.id)),
+    where: and(eq(sesizare.id, sesizareId), eq(sesizare.reporter, user.id)),
   })
   if (!reporter) {
     throw createError({

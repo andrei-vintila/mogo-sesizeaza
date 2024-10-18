@@ -1,7 +1,7 @@
 import type { FacebookUser } from '@@/types/facebook'
 import type { GoogleUser } from '@@/types/gapi'
 import type { GitHubUser } from '@@/types/github'
-import type { FacebookTokens, GitHubTokens, GoogleTokens } from 'arctic'
+import type { GoogleTokens } from 'arctic'
 import type { H3Event } from 'h3'
 import type { User } from 'lucia'
 import type { SelectOAuthAccount, UpsertUser } from '../database/schema'
@@ -15,11 +15,15 @@ type DB = ReturnType<typeof useDrizzle>
 export function upsertGithubOAuthAccount(db: DB, {
   userId,
   githubUser,
-  githubTokens,
+  githubAccessToken,
+  githubAccessTokenExpiresIn,
+  githubRefreshToken,
 }: {
   userId: string
   githubUser: GitHubUser
-  githubTokens: GitHubTokens
+  githubAccessToken: string
+  githubAccessTokenExpiresIn: number
+  githubRefreshToken: string
 }) {
   return db
     .insert(oAuthAccount)
@@ -27,14 +31,16 @@ export function upsertGithubOAuthAccount(db: DB, {
       userId,
       providerId: 'github',
       providerUserId: githubUser.id.toString(),
-      accessToken: githubTokens.accessToken,
-      refreshToken: 'empty',
-      expiresAt: new Date(Date.now() + 60 * 60),
+      accessToken: githubAccessToken,
+      refreshToken: githubRefreshToken,
+      expiresAt: new Date(Date.now() + githubAccessTokenExpiresIn * 1000),
     })
     .onConflictDoUpdate({
       target: [oAuthAccount.userId, oAuthAccount.providerId],
       set: {
-        accessToken: githubTokens.accessToken,
+        accessToken: githubAccessToken,
+        refreshToken: githubRefreshToken,
+        expiresAt: new Date(Date.now() + githubAccessTokenExpiresIn * 1000),
       },
     })
 }
@@ -42,11 +48,15 @@ export function upsertGithubOAuthAccount(db: DB, {
 export function upsertGoogleOAuthAccount(db: DB, {
   userId,
   googleUser,
-  googleTokens,
+  googleAccessToken,
+  googleAccessTokenExpiresIn,
+  googleRefreshToken,
 }: {
   userId: string
   googleUser: GoogleUser
-  googleTokens: GoogleTokens
+  googleAccessToken: string
+  googleAccessTokenExpiresIn: number
+  googleRefreshToken: string
 }) {
   return db
     .insert(oAuthAccount)
@@ -54,43 +64,45 @@ export function upsertGoogleOAuthAccount(db: DB, {
       userId,
       providerId: 'google',
       providerUserId: googleUser.sub,
-      accessToken: googleTokens.accessToken,
-      refreshToken: googleTokens.refreshToken,
-      expiresAt: googleTokens.accessTokenExpiresAt,
+      accessToken: googleAccessToken,
+      refreshToken: googleRefreshToken,
+      expiresAt: new Date(Date.now() + googleAccessTokenExpiresIn * 1000),
     })
     .onConflictDoUpdate({
       target: [oAuthAccount.userId, oAuthAccount.providerId],
       set: {
-        accessToken: googleTokens.accessToken,
-        refreshToken: googleTokens.refreshToken,
-        expiresAt: googleTokens.accessTokenExpiresAt,
+        accessToken: googleAccessToken,
+        refreshToken: googleRefreshToken,
+        expiresAt: new Date(Date.now() + googleAccessTokenExpiresIn * 1000),
       },
     })
 }
 
 export function upsertFacebookOAuthAccount(db: DB, {
   userId,
-  facebookUser,
-  facebookToken,
+  facebookUserId,
+  facebookAccessToken,
+  facebookAccessTokenExpiresIn,
 }: {
   userId: string
-  facebookUser: FacebookUser
-  facebookToken: FacebookTokens
+  facebookUserId: string
+  facebookAccessToken: string
+  facebookAccessTokenExpiresIn: number
 }) {
   return db
     .insert(oAuthAccount)
     .values({
       userId,
       providerId: 'facebook',
-      providerUserId: facebookUser.id,
-      accessToken: facebookToken.accessToken,
-      expiresAt: facebookToken.accessTokenExpiresAt,
+      providerUserId: facebookUserId,
+      accessToken: facebookAccessToken,
+      expiresAt: new Date(Date.now() + facebookAccessTokenExpiresIn * 1000),
     })
     .onConflictDoUpdate({
       target: [oAuthAccount.userId, oAuthAccount.providerId],
       set: {
-        accessToken: facebookToken.accessToken,
-        expiresAt: facebookToken.accessTokenExpiresAt,
+        accessToken: facebookAccessToken,
+        expiresAt: new Date(Date.now() + facebookAccessTokenExpiresIn * 1000),
       },
     })
 }
@@ -214,7 +226,7 @@ export async function getGoogleToken(db: DB, { userId }: GoogleOAuthTokenByUserI
 
 let lucia: ReturnType<typeof useLucia> | null = null
 
-export async function requireUserSession(event: H3Event) {
+export async function requireLuciaUserSession(event: H3Event) {
   if (event.method !== 'GET') {
     const originHeader = getHeader(event, 'Origin') ?? null
     const hostHeader = getHeader(event, 'Host') ?? null

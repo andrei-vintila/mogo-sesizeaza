@@ -1,6 +1,6 @@
-import { z } from 'zod'
+import { authUser, sesizare, sesizareVotes, StatusEnumSchema } from '@@/server/database/schema'
 import { and, asc, between, count, desc, eq, isNotNull, like, or } from 'drizzle-orm'
-import { StatusEnumSchema, authUser, sesizare, sesizareVotes } from '@@/server/database/schema'
+import { z } from 'zod'
 
 const querySchema = z.object({
   search: z.string().optional(),
@@ -19,7 +19,7 @@ const querySchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const db = useDrizzle()
-
+  const { user } = await getUserSession(event)
   const query = await getValidatedQuery(event, query => querySchema.parse(query))
   const result = await db.select(
     {
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       longitude: sesizare.longitude,
       reporterName: authUser.fullName,
       votes: count(sesizareVotes.voterId),
-      voted: eq(sesizareVotes.voterId, event.context.user?.id || ''),
+      voted: eq(sesizareVotes.voterId, user?.id || ''),
     },
   )
     .from(sesizare)

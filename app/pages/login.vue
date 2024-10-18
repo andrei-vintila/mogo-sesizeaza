@@ -49,6 +49,18 @@ const colorMode = useColorMode()
         padded
         class="justify-center"
       />
+      <UButton
+        label="Folosind Github"
+        color="neutral"
+        variant="outline"
+        icon="i-mdi-github"
+        size="lg"
+        trailing
+        to="/api/auth/login/github"
+        external
+        padded
+        class="justify-center"
+      />
     </div>
   </div>
 </template>

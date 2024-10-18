@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const colorMode = useColorMode()
-const { user, logout } = useUser()
+const { loggedIn, user, logout } = useUser()
 function toggleColorMode() {
   colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'
 }
@@ -56,12 +56,12 @@ const userLinks = [
           :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'" variant="ghost"
           color="neutral" size="lg" class="rounded-full" @click="toggleColorMode"
         />
-        <UButton v-if="!user" size="lg" to="/login" variant="ghost" label="Log in" class="rounded-full" />
+        <UButton v-if="!loggedIn" size="lg" to="/login" variant="ghost" label="Log in" class="rounded-full" />
         <UPopover v-else>
           <UButton variant="ghost" square color="neutral">
-            <UAvatar :src="user.profilePictureUrl" :alt="user.fullName" />
+            <UAvatar :src="user?.profilePictureUrl" :alt="user?.fullName" />
           </UButton>
-          <template #panel>
+          <template #content>
             <div class="flex flex-col space-y-2 p-2">
               <UButton
                 v-for="item in userLinks" :key="item.label" :to="item.to" variant="ghost" color="neutral" size="lg"
@@ -88,10 +88,10 @@ const userLinks = [
               v-for="item in publicLinks" :key="item.label" :label="item.label" color="neutral" size="lg"
               variant="ghost" :to="item.to" class="-ml-3"
             />
-            <UButton v-if="!user" label="Log in" to="/login" variant="ghost" size="lg" class="-ml-3" />
-            <div v-if="user" class="flex flex-col space-y-2">
+            <UButton v-if="!loggedIn" label="Log in" to="/login" variant="ghost" size="lg" class="-ml-3" />
+            <div v-if="loggedIn" class="flex flex-col space-y-2">
               <div class="py-2 flex items-center gap-2">
-                <UAvatar :src="user.profilePictureUrl" :alt="user.fullName" />
+                <UAvatar :src="user?.profilePictureUrl" :alt="user?.fullName" />
                 <div class="text-base font-medium">
                   {{ user?.fullName }}
                 </div>

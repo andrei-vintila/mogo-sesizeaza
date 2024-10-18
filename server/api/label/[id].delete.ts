@@ -1,13 +1,8 @@
-import { eq } from 'drizzle-orm'
 import { labels } from '@@/server/database/schema'
+import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-    })
-  }
 
   const labelId = event.context.params?.id
   if (!labelId) {

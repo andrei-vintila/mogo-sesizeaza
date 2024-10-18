@@ -1,21 +1,15 @@
-import { z } from 'zod'
 import { InsertLabelSchema, labels } from '@@/server/database/schema'
+import { z } from 'zod'
 // we create a zod schema that is an object that contains an array of InsertLabelSchema
 const createLabelSchema = z.object({
   labels: z.array(InsertLabelSchema).min(1),
 })
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-    })
-  }
-  const db = event.context.db
-  const userId = event.context.user.id
+  const { user } = await requireUserSession(event)
+  const db = useDrizzle()
   const bodyLabels = await readValidatedBody(event, createLabelSchema.parse)
   // add userId to each label
-  const dbLabels = bodyLabels.labels.map(label => ({ ...label, userId }))
+  const dbLabels = bodyLabels.labels.map(label => ({ ...label, userId: user.id }))
   // upsert user label
   try {
     const returnedData = await db

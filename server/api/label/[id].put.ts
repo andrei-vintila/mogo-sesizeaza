@@ -1,16 +1,11 @@
+import { labels, UpsertLabelSchema } from '@@/server/database/schema'
 import { eq } from 'drizzle-orm'
-import { UpsertLabelSchema, labels } from '@@/server/database/schema'
 
 const createLabelBodySchema = UpsertLabelSchema.omit({
   id: true,
 })
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-    })
-  }
 
   const labelId = event.context.params?.id
   if (!labelId) {

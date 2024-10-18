@@ -26,18 +26,15 @@ const { labels } = storeToRefs(labelStore)
 </script>
 
 <template>
-  <USelectMenu v-model="sesizareLabels" :options="labels" searchable multiple by="id" class="w-full">
-    <template #item-label>
-      <template v-if="sesizareLabels.length">
-        <UBadge v-for="label in sesizareLabels" :key="label.id" :label="label.name" variant="soft" />
-      </template>
-      <template v-else>
-        <span class="text-gray-500 dark:text-gray-400 truncate">Select labels</span>
-      </template>
-    </template>
-
-    <template #item="{ item }">
+  <USelectMenu v-model="sesizareLabels" :items="labels" :filter="['name']" selected-icon="i-heroicons-check" searchable multiple class="w-full">
+    <template #item-label="{ item }">
       <UBadge :label="item.name" variant="soft" />
+    </template>
+    <template v-if="sesizareLabels.length">
+      <UBadge v-for="label in sesizareLabels" :key="label.id" :label="label.name" variant="soft" />
+    </template>
+    <template v-else>
+      <span class="text-gray-500 dark:text-gray-400 truncate">Select labels</span>
     </template>
   </USelectMenu>
 </template>

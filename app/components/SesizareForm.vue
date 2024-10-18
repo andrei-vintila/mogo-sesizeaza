@@ -1,36 +1,21 @@
 <script lang="ts" setup>
-import { z } from 'zod'
-import { StatusEnumSchema } from '@@/server/database/schema'
 import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
+import type { SesizareFormSchema } from '@@/utils/forms/sesizareSchema'
+import { sesizareFormSchema } from '@@/utils/forms/sesizareSchema'
 
 defineProps<{
   isEditing?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'submit', data: Schema): void
+  (e: 'submit', data: SesizareFormSchema): void
 }>()
 
-const initialData = defineModel<Schema>('initialData', { required: true })
-
-const schema = z.object({
-  id: z.string(),
-  title: z.string().min(3, 'Trebuie sa aiba cel putin 3 caractere'),
-  description: z.string().optional(),
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
-  status: StatusEnumSchema.optional(),
-  labels: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-  })).optional(),
-})
-
-type Schema = z.infer<typeof schema>
+const initialData = defineModel<SesizareFormSchema>('initialData', { required: true })
 
 const { user } = useUser()
 
-function onSubmit(event: FormSubmitEvent<Schema>) {
+function onSubmit(event: FormSubmitEvent<SesizareFormSchema>) {
   emit('submit', event.data)
 }
 
@@ -52,12 +37,12 @@ function onError(event: FormErrorEvent) {
       </div>
     </template>
 
-    <UForm :state="initialData" :schema="schema" class="space-y-4" @submit="onSubmit" @error="onError">
+    <UForm :state="initialData" :schema="sesizareFormSchema" class="space-y-4" @submit="onSubmit" @error="onError">
       <UFormField label="Titlu" name="title" required>
         <UInput v-model="initialData.title" />
       </UFormField>
       <UFormField label="Descriere" name="description">
-        <UTextarea v-model="initialData.description" />
+        <UTextarea v-model="initialData.description" class="w-full" />
       </UFormField>
       <UFormField label="Locație" name="location">
         <LocationPicker v-model:lng="initialData.longitude" v-model:lat="initialData.latitude" />

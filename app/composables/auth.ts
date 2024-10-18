@@ -1,14 +1,8 @@
-import type { User } from 'lucia'
-
 export function useUser() {
+  const { user, clear, loggedIn, fetch } = useUserSession()
   const { $clientPosthog } = useNuxtApp()
-  const user = useState<User | null>('user', () => null)
   const logout = async () => {
-    await $fetch('/api/auth/logout', {
-      method: 'POST',
-      redirect: 'manual',
-    })
-    user.value = null
+    clear()
     $clientPosthog?.reset()
     useToast().add({
       icon: 'i-heroicons-check-badge',
@@ -16,7 +10,7 @@ export function useUser() {
       title: 'Success',
     })
   }
-  return { user, logout }
+  return { user, loggedIn, logout, fetch }
 }
 
 export function useAuthenticatedUser() {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // store initialization & fetching
 const labels = useLabelsStore()
-await callOnce(labels.init)
+await labels.init()
 const sesizariStore = useSesizariStore()
-await callOnce(sesizariStore.fetchAll)
+await sesizariStore.fetchAll()
 const { sesizari } = storeToRefs(sesizariStore)
 const { list, containerProps, wrapperProps } = useVirtualList(sesizari ?? [], {
   itemHeight: 181,

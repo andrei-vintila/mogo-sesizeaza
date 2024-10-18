@@ -1,25 +1,19 @@
-import { generateId } from 'lucia'
 import { DEFAULT_ID_SIZE, InsertSesizareSchema, sesizare, sesizareVotes } from '@@/server/database/schema'
+import { generateId } from 'lucia'
 
 const requestBodySchema = InsertSesizareSchema.omit({ createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
-  if (!event.context.user) {
-    throw createError({
-      message: 'Unauthorized',
-      statusCode: 401,
-    })
-  }
+  const { user } = await requireUserSession(event)
   const db = useDrizzle()
   const sesizareBody = await readValidatedBody(event, requestBodySchema.parse)
   const sesizareRecord = {
     ...sesizareBody,
-    reporter: event.context.user?.id ?? 'o9m0ob314ksjtbgblsnqxgddr',
+    reporter: user.id ?? 'o9m0ob314ksjtbgblsnqxgddr',
     id: sesizareBody.id || generateId(DEFAULT_ID_SIZE),
   }
   const dbBatch = db.batch([
     db.insert(sesizare).values(sesizareRecord).returning(),
-    db.insert(sesizareVotes).values({ sesizareId: sesizareRecord.id, voterId: event.context.user?.id }),
+    db.insert(sesizareVotes).values({ sesizareId: sesizareRecord.id, voterId: user.id }),
   ])
 
   try {

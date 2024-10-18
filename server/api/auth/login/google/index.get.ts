@@ -1,50 +1,85 @@
-import process from 'node:process'
-import { generateCodeVerifier, generateState } from 'arctic'
+import type { GoogleUser } from '~~/types/gapi'
+import { authUser, oAuthAccount } from '@@/server/database/schema'
 import { consola } from 'consola'
-import { z } from 'zod'
+import { and, eq } from 'drizzle-orm'
+import { generateId } from 'lucia'
 
-const googleUrlQueryParams = z.object({
-  forcePrompt: z.string().optional(),
-})
+interface GoogleTokens {
+  access_token: string
+  refresh_token: string
+  expires_in: number
+}
 
-export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
-  const query = await getValidatedQuery(event, googleUrlQueryParams.parse)
+export default defineOAuthGoogleEventHandler({
+  async onSuccess(event, { user, tokens }: { user: GoogleUser, tokens: GoogleTokens }) {
+    const googleUser = user
+    const googleTokens = tokens
+    consola.info('Tokens:', googleUser)
+    consola.info('User:', googleTokens)
+    const db = useDrizzle()
+    const existingAccount = await db.query.oAuthAccount.findFirst({
+      where: and(
+        eq(oAuthAccount.providerUserId, googleUser.sub),
+        eq(oAuthAccount.providerId, 'google'),
+      ),
+    })
+    const getUser = async () => {
+      // now we check if the user has an email in his google account to see if we can find an existing user
+      if (!googleUser.email_verified || !googleUser.email)
+        throw new Error('Email not verified')
 
-  if (event.context.user && !query.forcePrompt)
+      const existingUserWithEmail = await db.query.authUser.findFirst({
+        columns: { id: true },
+        where: eq(authUser.email, googleUser.email),
+      })
+      if (existingUserWithEmail) {
+        await upsertGoogleOAuthAccount(db, {
+          userId: existingUserWithEmail.id,
+          googleUser,
+          googleAccessToken: googleTokens.access_token,
+          googleAccessTokenExpiresIn: googleTokens.expires_in,
+          googleRefreshToken: googleTokens.refresh_token,
+        })
+        await db
+          .update(authUser)
+          .set({ fullName: googleUser.name, profilePictureUrl: googleUser.picture })
+          .where(eq(authUser.id, existingUserWithEmail.id))
+        return existingUserWithEmail.id
+      }
+      if (existingAccount)
+        return existingAccount.userId
+
+      const user = await upsertAuthUser(db, {
+        id: generateId(25),
+        email: googleUser.email,
+        fullName: googleUser.name,
+        profilePictureUrl: googleUser.picture,
+      })
+      const userId = user.id
+      await upsertGoogleOAuthAccount(db, {
+        userId,
+        googleUser,
+        googleAccessToken: googleTokens.access_token,
+        googleAccessTokenExpiresIn: googleTokens.expires_in,
+        googleRefreshToken: googleTokens.refresh_token,
+      })
+      return userId
+    }
+
+    const userId = await getUser()
+    await setUserSession(event, {
+      user: {
+        id: userId,
+        email: googleUser.email,
+        profilePictureUrl: googleUser.picture,
+        fullName: googleUser.name,
+      },
+    })
+
     return sendRedirect(event, '/')
-
-  const state = generateState()
-  const codeVerifier = generateCodeVerifier()
-  const url = await googleAuth(event).createAuthorizationURL(state, codeVerifier, {
-    scopes: [
-      'openid',
-      'email',
-      'profile',
-      // In case you need to access the user's calendar
-      // "https://www.googleapis.com/auth/calendar.events",
-      // "https://www.googleapis.com/auth/calendar",
-    ],
-  })
-  // In case you need to get a refresh token
-  // url.searchParams.append("access_type", "offline");
-
-  // This will force the user to consent that will in turn get you a refresh token
-  // if (query.forcePrompt) {
-  //   url.searchParams.append("prompt", "consent");
-  // }
-  setCookie(event, 'google_state', state, {
-    httpOnly: true,
-    secure: !process.dev,
-    path: '/',
-    maxAge: 60 * 10,
-  })
-  setCookie(event, 'google_code_verifier', codeVerifier, {
-    httpOnly: true,
-    secure: !process.dev,
-    path: '/',
-    maxAge: 60 * 10,
-  })
-  consola.withTag('auth').info('redirecting to google', url.toString())
-  return sendRedirect(event, url.toString())
+  },
+  async onError(event, error) {
+    consola.error('Error:', error)
+    return sendRedirect(event, '/')
+  },
 })

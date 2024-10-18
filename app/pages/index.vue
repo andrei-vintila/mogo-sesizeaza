@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // store initialization & fetching
 const labels = useLabelsStore()
-await callOnce(labels.init)
+await labels.init()
 const sesizariStore = useSesizariStore()
-await callOnce(sesizariStore.fetchAll)
+await sesizariStore.fetchAll()
 const { sesizari } = storeToRefs(sesizariStore)
 
 const { list, containerProps, wrapperProps } = useVirtualList(sesizari ?? [], {
@@ -25,7 +25,7 @@ const sesizariViewState = useState('sesizariView', () => 'list')
       </div>
     </div>
     <div v-show="sesizariViewState === 'map'" class="absolute top-[59px] inset-2 rounded-xl">
-      <!-- <SesizariMapView class="h-full" /> -->
+      <SesizariMapView class="h-full" />
     </div>
   </div>
 </template>

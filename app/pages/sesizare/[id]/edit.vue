@@ -1,23 +1,10 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import type { SesizareFormSchema } from '~~/utils/forms/sesizareSchema'
+import { sesizareFormSchema } from '~~/utils/forms/sesizareSchema'
 
 const route = useRoute()
 const sesizariStore = useSesizariStore()
 const labelsStore = useLabelsStore()
-
-const _schema = z.object({
-  id: z.string(),
-  title: z.string().min(3, 'Trebuie sa aiba cel putin 3 caractere'),
-  description: z.string().optional(),
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
-  labels: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-  })).optional(),
-})
-
-type Schema = z.infer<typeof _schema>
 
 await labelsStore.init() // Ensure labels are loaded
 await sesizariStore.fetchById(useRoute().params.id as string)

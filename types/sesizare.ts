@@ -1,5 +1,5 @@
+import { SelectSesizareSchema } from '@@/server/database/schema'
 import { z } from 'zod'
-import { SelectSesizareSchema } from '~/server/database/schema'
 
 export const SesizareCardSchema = SelectSesizareSchema.extend({
   reporterName: z.string(),
