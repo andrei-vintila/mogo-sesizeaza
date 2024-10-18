@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { useVirtualList } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 
 definePageMeta({
   middleware: 'protected',
