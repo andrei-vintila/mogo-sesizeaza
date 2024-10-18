@@ -17,7 +17,7 @@ const breadcrumbs = computed(() => [
   { label: 'Editare' },
 ])
 
-async function handleSubmit(formData: Schema) {
+async function handleSubmit(formData: SesizareFormSchema) {
   try {
     await sesizariStore.updateSesizare({
       ...formData,
