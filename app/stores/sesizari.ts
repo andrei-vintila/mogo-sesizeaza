@@ -1,7 +1,6 @@
 import type { InsertSesizare, UpsertSesizare } from '@@/server/database/schema'
 import type { SesizareCard } from '@@/types/sesizare'
 import { StatusEnumSchema } from '@@/server/database/schema'
-import { generateId } from '@@/utils/random'
 import { FetchError } from 'ofetch'
 import { defineStore } from 'pinia'
 

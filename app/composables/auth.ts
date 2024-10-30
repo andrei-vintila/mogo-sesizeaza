@@ -3,6 +3,7 @@ export function useUser() {
   const { $clientPosthog } = useNuxtApp()
   const logout = async () => {
     clear()
+    // @ts-expect-error something broken in the posthog module
     $clientPosthog?.reset()
     useToast().add({
       icon: 'i-heroicons-check-badge',

@@ -3,7 +3,6 @@ import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
 import type { SesizareFormSchema } from '@@/utils/forms/sesizareSchema'
 import type { UseBase64Return } from '@vueuse/core'
 import { sesizareFormSchema } from '@@/utils/forms/sesizareSchema'
-import { generateId } from '@@/utils/random'
 import { useBase64 } from '@vueuse/core'
 
 const { user } = useUser()

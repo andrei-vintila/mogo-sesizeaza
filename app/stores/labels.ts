@@ -1,6 +1,5 @@
 import type { z } from 'zod'
 import { InsertLabelSchema } from '@@/server/database/schema'
-import { generateId } from '@@/utils/random'
 import { defineStore } from 'pinia'
 
 const _LabelSchema = InsertLabelSchema.pick({

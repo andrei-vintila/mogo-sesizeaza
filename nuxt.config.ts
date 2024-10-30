@@ -1,6 +1,9 @@
 import process from 'node:process'
 
 export default defineNuxtConfig({
+  extends: [
+    'github:andrei-vintila/nuxt-hub-auth',
+  ],
   devtools: {
     enabled: true,
 
