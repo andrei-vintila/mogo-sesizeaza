@@ -44,6 +44,9 @@ function onError(event: FormErrorEvent) {
       <UFormField label="Descriere" name="description">
         <UTextarea v-model="initialData.description" class="w-full" />
       </UFormField>
+      <UFormField label="Imagine" name="media">
+        <ImageUploadInput v-model="initialData.media" />
+      </UFormField>
       <UFormField label="Locație" name="location">
         <LocationPicker v-model:lng="initialData.longitude" v-model:lat="initialData.latitude" />
       </UFormField>

@@ -1,8 +1,8 @@
 import type { GitHubUser } from '@@/types/github'
 import { authUser, oAuthAccount } from '@@/server/database/schema'
+import { generateId } from '@@/utils/random'
 import { consola } from 'consola'
 import { and, eq } from 'drizzle-orm'
-import { generateId } from 'lucia'
 
 interface GitHubOAuthTokens {
   access_token: string

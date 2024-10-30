@@ -54,7 +54,7 @@ const userLinks = [
       <div class="hidden md:flex md:flex-1 md:justify-end space-x-2">
         <UButton
           :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'" variant="ghost"
-          color="neutral" size="lg" class="rounded-full" @click="toggleColorMode"
+          color="neutral" size="lg" padded @click="toggleColorMode"
         />
         <UButton v-if="!loggedIn" size="lg" to="/login" variant="ghost" label="Log in" class="rounded-full" />
         <UPopover v-else>

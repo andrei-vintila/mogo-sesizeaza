@@ -1,22 +1,55 @@
 <script lang="ts" setup>
 import type { FormErrorEvent, FormSubmitEvent } from '#ui/types'
 import type { SesizareFormSchema } from '@@/utils/forms/sesizareSchema'
+import type { UseBase64Return } from '@vueuse/core'
 import { sesizareFormSchema } from '@@/utils/forms/sesizareSchema'
-import { generateId } from 'lucia'
+import { generateId } from '@@/utils/random'
+import { useBase64 } from '@vueuse/core'
 
 const { user } = useUser()
 const sesizariStore = useSesizariStore()
 
-// check if we have a draft sesizare in local storage and if so, use it instead of empty init
-const draftSesizare = useLocalStorage<SesizareFormSchema>('draft-sesizare', {
+const media = ref<File[]>([])
+
+export interface SerializedMedia { base64: UseBase64Return, mimeType: string, name: string }
+const serializedMedia = ref<SerializedMedia[]>([])
+
+// Update draftSesizare to include serialized media
+const draftSesizare = useLocalStorage<SesizareFormSchema & { serializedMedia: SerializedMedia[] }>('draft-sesizare', {
   id: generateId(25),
   title: '',
   description: '',
   latitude: null,
   longitude: null,
+  media: [],
+  serializedMedia: [],
   status: 'new',
   labels: [],
 }, { initOnMounted: true, mergeDefaults: true })
+
+// Initialize media from local storage on component mount
+onMounted(async () => {
+  if (draftSesizare.value.serializedMedia.length > 0) {
+    media.value = await Promise.all(draftSesizare.value.serializedMedia.map(async (serializedFile) => {
+      const base64Data = await serializedFile.base64.promise
+      const blob = await fetch(`data:${serializedFile.mimeType};base64,${base64Data}`).then(res => res.blob())
+      return new File([blob], serializedFile.name, { type: serializedFile.mimeType })
+    }))
+  }
+})
+
+// Watch for changes in media and update serializedMedia and draftSesizare
+watch(media, async (newMedia) => {
+  serializedMedia.value = await Promise.all(newMedia.map(async (file) => {
+    const base64 = useBase64(file)
+    return {
+      base64,
+      mimeType: file.type,
+      name: file.name,
+    }
+  }))
+  draftSesizare.value.serializedMedia = serializedMedia.value
+}, { deep: true })
 
 const breadcrumbs = computed(() => [
   { label: 'Sesizari', to: '/' },
@@ -25,6 +58,15 @@ const breadcrumbs = computed(() => [
 async function onSubmit(event: FormSubmitEvent<SesizareFormSchema>) {
   // save the sesizare
   try {
+    // Deserialize media from serialized objects to File objects
+    const deserializedMedia = await Promise.all(
+      draftSesizare.value.serializedMedia.map(async (serializedFile) => {
+        const response = await fetch(serializedFile.base64)
+        const blob = await response.blob()
+        return new File([blob], serializedFile.name, { type: serializedFile.mimeType })
+      }),
+    )
+
     const result = await sesizariStore.addSesizare({
       ...event.data,
       reporter: user.value?.id || '',
@@ -74,6 +116,9 @@ async function onError(event: FormErrorEvent) {
         </UFormField>
         <UFormField label="Descriere" name="description">
           <UTextarea v-model="draftSesizare.description" :rows="4" autoresize class="w-full" />
+        </UFormField>
+        <UFormField label="Imagini" name="images">
+          <ImageUploadInput v-model="media" />
         </UFormField>
         <UFormField label="Locație" name="location">
           <LocationPicker

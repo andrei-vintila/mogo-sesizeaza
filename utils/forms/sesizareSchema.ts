@@ -8,6 +8,7 @@ export const sesizareFormSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   status: StatusEnumSchema.optional(),
+  media: z.array(z.instanceof(File)).optional(),
   labels: z.array(z.object({
     id: z.string(),
     name: z.string(),

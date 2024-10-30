@@ -1,8 +1,8 @@
 import type { GoogleUser } from '~~/types/gapi'
 import { authUser, oAuthAccount } from '@@/server/database/schema'
+import { generateId } from '@@/utils/random'
 import { consola } from 'consola'
 import { and, eq } from 'drizzle-orm'
-import { generateId } from 'lucia'
 
 interface GoogleTokens {
   access_token: string

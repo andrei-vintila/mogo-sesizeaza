@@ -1,8 +1,8 @@
 import type { FacebookUser } from '@@/types/facebook'
 import { authUser, oAuthAccount } from '@@/server/database/schema'
+import { generateId } from '@@/utils/random'
 import { consola } from 'consola'
 import { and, eq } from 'drizzle-orm'
-import { generateId } from 'lucia'
 
 interface FacebookOAuthTokens {
   access_token: string
