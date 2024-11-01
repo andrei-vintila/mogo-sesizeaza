@@ -137,7 +137,12 @@ export const useSesizariStore = defineStore('sesizari', () => {
 
   const vote = async (sesizareId: string) => {
     if (!loggedIn.value) {
-      useToast().add({ title: 'Nu ești logat!', description: 'Creează un cont sau loghează-te pentru a putea vota.', color: 'error', actions: [{ label: 'Loghează-te', onClick: () => { useRouter().push('/login') } }] })
+      useToast().add({
+        title: 'Nu ești logat!',
+        description: 'Creează un cont sau loghează-te pentru a putea vota.',
+        color: 'error',
+        actions: [{ label: 'Loghează-te', onClick: () => { useRouter().push('/login') } }],
+      })
       return
     }
     if (!sesizariMap.value.has(sesizareId))

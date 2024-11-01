@@ -1,5 +1,5 @@
+import { generateId } from '#auth-layer/utils/random'
 import { DEFAULT_ID_SIZE, InsertSesizareSchema, sesizare, sesizareVotes } from '@@/server/database/schema'
-import { generateId } from '@@/utils/random'
 
 const requestBodySchema = InsertSesizareSchema.omit({ createdAt: true, updatedAt: true, status: true, reporter: true })
 export default defineEventHandler(async (event) => {

@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
-    "preview": "nuxt preview",
+    "preview": "nuxi preview",
     "db:generate": "drizzle-kit generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxi prepare"
   },
   "dependencies": {
     "@formkit/tempo": "^0.1.2",
@@ -32,7 +32,7 @@
     "@nuxt/devtools": "^1.6.0",
     "@nuxt/eslint-config": "^0.6.0",
     "@nuxt/ui": "3.0.0-alpha.6",
-    "@nuxthub/core": "^0.7.34",
+    "@nuxthub/core": "^0.8.4",
     "@types/better-sqlite3": "^7.6.11",
     "@types/google.maps": "^3.58.1",
     "date-fns": "^4.1.0",
