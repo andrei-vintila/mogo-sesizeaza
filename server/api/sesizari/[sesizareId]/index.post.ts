@@ -16,27 +16,53 @@ export default defineEventHandler(async (event) => {
     event,
     requestBodySchema.parse,
   )
+
+  // Ensure media is an array of strings or null
+  const media = sesizareBody.media && Array.isArray(sesizareBody.media)
+    ? sesizareBody.media.filter((item): item is string => typeof item === 'string')
+    : null
+
   const db = useDrizzle()
   // check if user is the reporter
-  const reporter = await db.query.sesizare.findFirst({
+  const currentSesizare = await db.query.sesizare.findFirst({
     where: and(eq(sesizare.id, sesizareId), eq(sesizare.reporter, user.id)),
   })
-  if (!reporter) {
+  if (!currentSesizare) {
     throw createError({
       statusCode: 401,
       message: 'Unauthorized',
     })
   }
+
+  // Delete removed media files
+  if (currentSesizare.media && media) {
+    const deletedMedia = currentSesizare.media.filter(url => !media.includes(url))
+    for (const url of deletedMedia) {
+      try {
+        await hubBlob().delete(url)
+      }
+      catch (error) {
+        console.error(`Failed to delete media file ${url}:`, error)
+      }
+    }
+  }
+
+  const updateData = {
+    ...sesizareBody,
+    media,
+  }
+
   try {
-    const response = await db.update(sesizare).set(sesizareBody).where(eq(sesizare.id, sesizareId))
+    const response = await db.update(sesizare)
+      .set(updateData)
+      .where(eq(sesizare.id, sesizareId))
     setResponseStatus(event, 200)
     return response
   }
   catch (e) {
     throw createError({
       statusCode: 500,
-      message: 'Failed to update sesizare',
-      cause: e,
+      message: e instanceof Error ? e.message : 'Failed to update sesizare',
     })
   }
 })

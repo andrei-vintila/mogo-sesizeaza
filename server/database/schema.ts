@@ -1,7 +1,7 @@
-import { generateId } from '@@/utils/random'
 import { integer, primaryKey, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
+import { generateId } from '../../utils/random'
 
 export const DEFAULT_ID_SIZE: Readonly<number> = 25
 

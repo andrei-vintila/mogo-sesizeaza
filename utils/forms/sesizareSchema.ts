@@ -1,5 +1,5 @@
-import { StatusEnumSchema } from '~~/server/database/schema'
 import { z } from 'zod'
+import { StatusEnumSchema } from '~~/server/database/schema'
 
 export const sesizareFormSchema = z.object({
   id: z.string(),
@@ -8,7 +8,7 @@ export const sesizareFormSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   status: StatusEnumSchema.optional(),
-  media: z.array(z.instanceof(File)).optional(),
+  media: z.union([z.instanceof(File), z.string()]).array().optional(),
   labels: z.array(z.object({
     id: z.string(),
     name: z.string(),

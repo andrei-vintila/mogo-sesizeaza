@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { SesizareFormSchema } from '~~/utils/forms/sesizareSchema'
-import { sesizareFormSchema } from '~~/utils/forms/sesizareSchema'
+import type { SesizareFormSchema } from '@@/utils/forms/sesizareSchema'
+import { toCardSchema, toFormSchema } from '@/utils/transforms'
 
 const route = useRoute()
 const sesizariStore = useSesizariStore()
@@ -17,22 +17,29 @@ const breadcrumbs = computed(() => [
   { label: 'Editare' },
 ])
 
+const deletedMedia = ref<string[]>([])
+
 async function handleSubmit(formData: SesizareFormSchema) {
   try {
-    await sesizariStore.updateSesizare({
-      ...formData,
-      latitude: formData.latitude || 0,
-      longitude: formData.longitude || 0,
-      reporter: sesizare?.reporter || '',
-      createdAt: sesizare?.createdAt || new Date(),
-      updatedAt: new Date(),
-      status: sesizare?.status ?? 'new',
-      reporterName: sesizare?.reporterName || '',
-      votes: sesizare?.votes || 0,
-      voted: sesizare?.voted || false,
-      description: formData.description || '',
-      labels: formData.labels || [],
-    })
+    if (!sesizare)
+      return
+
+    // Update the sesizare first
+    await sesizariStore.updateSesizare(toCardSchema(formData, sesizare))
+
+    // If update was successful, delete the removed media files
+    if (deletedMedia.value.length > 0) {
+      await Promise.all(
+        deletedMedia.value.map(async (pathname) => {
+          try {
+            await $fetch(`/api/images/${pathname}`, { method: 'DELETE' })
+          }
+          catch (error) {
+            console.error(`Failed to delete media file ${pathname}:`, error)
+          }
+        }),
+      )
+    }
 
     // Redirect to the sesizare details page after successful update
     navigateTo(`/sesizare/${route.params.id}`)
@@ -42,11 +49,24 @@ async function handleSubmit(formData: SesizareFormSchema) {
     // Handle error (e.g., show error message)
   }
 }
+
+// Transform the sesizare to form schema
+const formData = computed(() => sesizare ? toFormSchema(sesizare) : undefined)
+
+function handleDeleteMedia(url: string) {
+  deletedMedia.value.push(url)
+}
 </script>
 
 <template>
   <div class="mt-2 flex flex-col gap-2">
     <UBreadcrumb :items="breadcrumbs" />
-    <SesizareForm v-if="sesizare" v-model:initial-data="sesizare" :is-editing="true" @submit="handleSubmit" />
+    <SesizareForm
+      v-if="formData"
+      v-model:initial-data="formData"
+      :is-editing="true"
+      @submit="handleSubmit"
+      @delete-media="handleDeleteMedia"
+    />
   </div>
 </template>

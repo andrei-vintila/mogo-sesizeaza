@@ -8,6 +8,13 @@
       "when": 1722080721788,
       "tag": "0000_oval_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1735493962545,
+      "tag": "0001_famous_leper_queen",
+      "breakpoints": true
     }
   ]
 }

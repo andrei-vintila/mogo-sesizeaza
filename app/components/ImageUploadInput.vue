@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { useDropZone, useFileDialog } from '@vueuse/core'
 
+const props = defineProps<{
+  existingMedia?: string[]
+  disabled?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'deleteMedia', url: string): void
+}>()
+
 const media = defineModel<File[]>({ default: () => [] })
 const dropZoneRef = ref<HTMLDivElement>()
 const containerRef = ref<HTMLDivElement>()
@@ -26,20 +35,36 @@ function removeFile(index: number) {
   media.value.splice(index, 1)
 }
 
+function removeExistingMedia(url: string) {
+  // Extract the pathname from the URL (remove /api/images/ prefix)
+  const pathname = url.replace('/api/images/', '')
+  emit('deleteMedia', pathname)
+}
+
 const { isOverDropZone } = useDropZone(dropZoneRef, {
   onDrop,
   dataTypes: ['image/png', 'image/jpeg', 'image/webp'],
 })
 
-const previewUrls = computed(() =>
-  media.value.map(file => ({
+const previewUrls = computed(() => [
+  ...(props.existingMedia?.map(url => ({
+    url: `/api/images/${url}`,
+    originalUrl: url,
+    type: 'image',
+    isExisting: true,
+  })) || []),
+  ...media.value.map(file => ({
     url: URL.createObjectURL(file),
+    originalUrl: '',
     type: file.type.startsWith('image/') ? 'image' : 'video',
+    isExisting: false,
   })),
-)
+])
 
 onBeforeUnmount(() => {
-  previewUrls.value.forEach(preview => URL.revokeObjectURL(preview.url))
+  previewUrls.value
+    .filter(preview => !preview.isExisting)
+    .forEach(preview => URL.revokeObjectURL(preview.url))
 })
 
 const isImage = (type: string) => type === 'image'
@@ -47,7 +72,7 @@ const isImage = (type: string) => type === 'image'
 const visibleItemsCount = ref(0)
 const showAdditionalCount = ref(false)
 
-const additionalMediaCount = computed(() => Math.max(0, media.value.length - visibleItemsCount.value))
+const additionalMediaCount = computed(() => Math.max(0, previewUrls.value.length - visibleItemsCount.value))
 
 function updateVisibleItems() {
   if (!containerRef.value)
@@ -64,12 +89,12 @@ function updateVisibleItems() {
   let maxItems = Math.floor((availableWidth + gap) / (itemWidth + gap))
 
   // If we can't fit all items, reserve space for "+more"
-  if (maxItems < media.value.length) {
+  if (maxItems < previewUrls.value.length) {
     maxItems = Math.max(1, maxItems - 1) // Ensure at least one preview is shown
   }
 
-  visibleItemsCount.value = Math.min(maxItems, media.value.length)
-  showAdditionalCount.value = visibleItemsCount.value < media.value.length
+  visibleItemsCount.value = Math.min(maxItems, previewUrls.value.length)
+  showAdditionalCount.value = visibleItemsCount.value < previewUrls.value.length
 }
 
 onMounted(() => {
@@ -82,6 +107,7 @@ onBeforeUnmount(() => {
 })
 
 watch(media, updateVisibleItems)
+watch(() => props.existingMedia, updateVisibleItems)
 </script>
 
 <template>
@@ -93,9 +119,10 @@ watch(media, updateVisibleItems)
         :color="isOverDropZone ? 'info' : 'neutral'"
         class="transition-colors duration-200 group rounded-lg border-2 border-dashed border-neutral-200 flex-grow-0 flex-shrink-0"
         :class="{
-          'w-full h-28': !media.length,
-          'size-28': media.length > 0,
+          'w-full h-28': !previewUrls.length,
+          'size-28': previewUrls.length > 0,
         }"
+        :disabled="disabled"
         @click="open()"
       >
         <div class="w-full h-full flex items-center justify-center">
@@ -104,15 +131,15 @@ watch(media, updateVisibleItems)
               name="i-heroicons-arrow-up-tray"
               class="w-6 h-6 mb-2"
             />
-            <span class="text-center">{{ media.length > 0 ? 'Incarca' : 'Incarca poze care ajuta la clarificarea problemei' }}</span>
-            <span v-if="!media.length" class="text-xs mt-1 text-center">Formate acceptate: JPEG, PNG, WebP</span>
+            <span class="text-center">{{ previewUrls.length > 0 ? 'Incarca' : 'Incarca poze care ajuta la clarificarea problemei' }}</span>
+            <span v-if="!previewUrls.length" class="text-xs mt-1 text-center">Formate acceptate: JPEG, PNG, WebP</span>
           </div>
         </div>
       </UButton>
-      <template v-if="media.length > 0">
+      <template v-if="previewUrls.length > 0">
         <div
           v-for="(preview, index) in previewUrls.slice(0, visibleItemsCount)"
-          :key="index"
+          :key="preview.url"
           class="relative size-28 rounded overflow-hidden flex-grow-0 flex-shrink-0"
         >
           <img
@@ -133,7 +160,7 @@ watch(media, updateVisibleItems)
             icon="i-heroicons-trash"
             size="xs"
             class="absolute bottom-2 right-2"
-            @click="removeFile(index)"
+            @click="preview.isExisting ? removeExistingMedia(preview.url) : removeFile(index)"
           />
         </div>
         <div

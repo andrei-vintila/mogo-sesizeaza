@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
     reporter: sesizare.reporter,
     longitude: sesizare.longitude,
     latitude: sesizare.latitude,
+    media: sesizare.media,
     reporterName: authUser.fullName ?? '',
     votes: count(sesizareVotes.voterId),
     voted: eq(sesizareVotes.voterId, user?.id || ''),

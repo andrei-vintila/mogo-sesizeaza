@@ -1,6 +1,6 @@
 import type { InsertSesizare, UpsertSesizare } from '@@/server/database/schema'
 import type { SesizareCard } from '@@/types/sesizare'
-import { StatusEnumSchema } from '@@/server/database/schema'
+import { sesizare, StatusEnumSchema } from '@@/server/database/schema'
 import { generateId } from '@@/utils/random'
 import { FetchError } from 'ofetch'
 import { defineStore } from 'pinia'
@@ -125,7 +125,6 @@ export const useSesizariStore = defineStore('sesizari', () => {
         title: 'Sesizarea nu s-a putut actualizat.',
         description:
           (error instanceof Error ? error.message : 'Nu s-a putut actualizat sesizarea'),
-
         color: 'error',
         icon: 'i-heroicons-exclamation-circle',
       })
