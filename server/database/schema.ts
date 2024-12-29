@@ -82,6 +82,7 @@ export const sesizare = sqliteTable('sesizari', {
   longitude: real('longitude').notNull(),
   labels: text('labels', { mode: 'json' }).$type<Array<string>>(),
   status: text('status', { enum: STATUSES }).notNull().default('new'),
+  media: text('media', { mode: 'json' }).$type<Array<string>>(),
   // sesizareDate: integer('sesizare_date', { mode: 'timestamp' }).$defaultFn(() => new Date()), // this is for manually saying for how long this has been a problem
   ...defaultCreatedUpdatedColumns,
 })

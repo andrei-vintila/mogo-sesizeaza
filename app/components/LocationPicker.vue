@@ -5,8 +5,8 @@ import { GoogleMap } from 'vue3-google-map'
 const { googleMapsApiKey } = useRuntimeConfig().public
 const { coords, resume, pause } = useGeolocation({ immediate: false, enableHighAccuracy: true })
 const mapId = 'bca681cd186f5d7d'
-const lat = defineModel('lat', { type: Number })
-const lng = defineModel('lng', { type: Number })
+const lat = defineModel('lat', { type: [Number, null] as PropType<number | null> })
+const lng = defineModel('lng', { type: [Number, null] as PropType<number | null> })
 
 const location = computed(() => ({ lat: lat.value, lng: lng.value }))
 const draftLocation = ref()
