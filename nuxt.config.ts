@@ -36,7 +36,6 @@ export default defineNuxtConfig({
     clientOptions: {
       ui_host: 'https://eu.posthog.com',
     },
-    host: `${process.env.BASE_URL || 'http://localhost:3000'}/ingest`,
   },
 
   nitro: {
