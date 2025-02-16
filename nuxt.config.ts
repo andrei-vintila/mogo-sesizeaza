@@ -32,14 +32,12 @@ export default defineNuxtConfig({
 
   },
   posthog: {
-    publicKey: process.env.POSTHOG_PUBLIC_KEY,
     clientOptions: {
       ui_host: 'https://eu.posthog.com',
     },
   },
 
   nitro: {
-    preset: 'cloudflare-pages',
     experimental: {
       tasks: true,
       openAPI: true,
