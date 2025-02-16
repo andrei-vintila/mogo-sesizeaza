@@ -35,6 +35,17 @@ export default defineNuxtConfig({
     clientOptions: {
       ui_host: 'https://eu.posthog.com',
     },
+    publicKey: 'phc_8jEcKWON11hBZBXqG6W3CmgddZO3OKrKZG8iKAiDr7W',
+  },
+  $development: {
+    posthog: {
+      host: 'http://localhost:3000/ingest',
+    },
+  },
+  $production: {
+    posthog: {
+      host: 'https://mogo-sesizeaza.pages.dev/ingest',
+    },
   },
 
   nitro: {
