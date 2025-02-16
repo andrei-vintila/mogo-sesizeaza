@@ -45,6 +45,9 @@ export default defineNuxtConfig({
   $production: {
     posthog: {
       host: 'https://mogo-sesizeaza.pages.dev/ingest',
+      clientOptions: {
+        mask_all_text: true,
+      },
     },
   },
 
