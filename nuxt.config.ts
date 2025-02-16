@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     '@nuxthub/core',
     'nuxt-posthog',
     'nuxt-auth-utils',
+    '@nuxt/test-utils/module',
   ],
   runtimeConfig: {
     public: {
