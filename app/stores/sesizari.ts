@@ -9,7 +9,7 @@ export const useSesizariStore = defineStore('sesizari', () => {
   const toast = useToast()
   const { idToLabels } = useLabelsStore()
   const { user, loggedIn } = useUser()
-
+  const { $clientPosthog } = useNuxtApp()
   const sesizariMap = ref(new Map<string, SesizareCard>())
   const votedSesizariSet = ref(new Set<string>())
 
@@ -82,6 +82,9 @@ export const useSesizariStore = defineStore('sesizari', () => {
         method: 'POST',
         body: newSesizare,
       })
+      $clientPosthog?.capture('sesizare_adaugata', {
+        sesizare: insertSesizare,
+      })
       toast.add({ id: 'add-sesizare-success', title: 'Sesizare a fost adaugat cu succes' })
     }
     catch (error) {
@@ -115,6 +118,9 @@ export const useSesizariStore = defineStore('sesizari', () => {
       await $fetch(`/api/sesizari/${updatedSesizare.id}`, {
         method: 'POST',
         body: tempSesizare,
+      })
+      $clientPosthog?.capture('sesizare_actualizata', {
+        sesizare: updatedSesizare,
       })
       toast.add({ id: 'update-sesizare-success', title: 'Sesizarea a fost actualizată cu succes' })
     }
@@ -157,6 +163,10 @@ export const useSesizariStore = defineStore('sesizari', () => {
       sesizare.voted = !voted
       sesizariMap.value.set(sesizareId, sesizare)
       await $fetch(`/api/sesizari/${sesizareId}/votes`, { method: 'POST' })
+      $clientPosthog?.capture('sesizare_votata', {
+        sesizareId,
+        vot: voted ? 'scos' : 'adaugat',
+      })
     }
     catch (error) {
       if (voted) {
